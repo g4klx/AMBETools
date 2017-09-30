@@ -27,13 +27,17 @@ const unsigned char DV3000_TYPE_CONTROL = 0x00U;
 const unsigned char DV3000_TYPE_AMBE    = 0x01U;
 const unsigned char DV3000_TYPE_AUDIO   = 0x02U;
 
-const unsigned char DV3000_CONTROL_RATET  = 0x09U;
-const unsigned char DV3000_CONTROL_RATEP  = 0x0AU;
-const unsigned char DV3000_CONTROL_PRODID = 0x30U;
-const unsigned char DV3000_CONTROL_READY  = 0x39U;
+const unsigned char DV3000_CONTROL_RATET        = 0x09U;
+const unsigned char DV3000_CONTROL_RATEP        = 0x0AU;
+const unsigned char DV3000_CONTROL_PRODID       = 0x30U;
+const unsigned char DV3000_CONTROL_RESETSOFTCFG = 0x34U;
+const unsigned char DV3000_CONTROL_READY        = 0x39U;
 
 const unsigned char DV3000_REQ_PRODID[]     = {DV3000_START_BYTE, 0x00U, 0x01U, DV3000_TYPE_CONTROL, DV3000_CONTROL_PRODID};
 const unsigned int DV3000_REQ_PRODID_LEN    = 5U;
+
+const unsigned char DV3000_REQ_RESET[] = {DV3000_START_BYTE, 0x00U, 0x07U, DV3000_TYPE_CONTROL, DV3000_CONTROL_RESETSOFTCFG, 0x05U, 0x00U, 0x00U, 0x0FU, 0x00U, 0x00U};
+const unsigned int DV3000_REQ_RESET_LEN = 11U;
 
 const unsigned char DV3000_REQ_DSTAR_FEC[]  = {DV3000_START_BYTE, 0x00U, 0x0DU, DV3000_TYPE_CONTROL, DV3000_CONTROL_RATEP, 0x01U, 0x30U, 0x07U, 0x63U, 0x40U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x48U};
 const unsigned int DV3000_REQ_DSTAR_FEC_LEN = 17U;
@@ -86,11 +90,12 @@ const unsigned int DV3000_HEADER_LEN = 4U;
 
 const unsigned int BUFFER_LENGTH = 400U;
 
-CDV3000SerialController::CDV3000SerialController(const std::string& device, unsigned int speed, AMBE_MODE mode, bool fec, float amplitude, CWAVFileReader* reader, CAMBEFileWriter* writer) :
+CDV3000SerialController::CDV3000SerialController(const std::string& device, unsigned int speed, AMBE_MODE mode, bool fec, float amplitude, bool reset, CWAVFileReader* reader, CAMBEFileWriter* writer) :
 m_serial(device, SERIAL_SPEED(speed)),
 m_mode(mode),
 m_fec(fec),
 m_amplitude(amplitude),
+m_reset(reset),
 m_direction(AMBE_ENCODING),
 m_wavReader(reader),
 m_wavWriter(NULL),
@@ -102,11 +107,12 @@ m_ambeBlockSize(0U)
 	assert(writer != NULL);
 }
 
-CDV3000SerialController::CDV3000SerialController(const std::string& device, unsigned int speed, AMBE_MODE mode, bool fec, float amplitude, CAMBEFileReader* reader, CWAVFileWriter* writer) :
+CDV3000SerialController::CDV3000SerialController(const std::string& device, unsigned int speed, AMBE_MODE mode, bool fec, float amplitude, bool reset, CAMBEFileReader* reader, CWAVFileWriter* writer) :
 m_serial(device, SERIAL_SPEED(speed)),
 m_mode(mode),
 m_fec(fec),
 m_amplitude(amplitude),
+m_reset(reset),
 m_direction(AMBE_DECODING),
 m_wavReader(NULL),
 m_wavWriter(writer),
@@ -127,6 +133,9 @@ bool CDV3000SerialController::open()
 	bool res = m_serial.open();
 	if (!res)
 		return false;
+
+	if (m_reset)
+		m_serial.write(DV3000_REQ_RESET, DV3000_REQ_RESET_LEN);
 
 	m_serial.write(DV3000_REQ_PRODID, DV3000_REQ_PRODID_LEN);
 

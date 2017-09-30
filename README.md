@@ -5,9 +5,9 @@ different AMBE formats.
 There are two programs, AMBE2WAV and WAV2AMBE and their purposes are obvious from
 their names. The usage of them is:
 
-AMBE2WAV [-a amplitude] [-g <signature>] [-m dstar|dmr|ysf|p25] [-f 0|1] [-p <port>] [-s <speed>] <input> <output>
+AMBE2WAV [-a amplitude] [-g <signature>] [-m dstar|dmr|ysf|p25] [-f 0|1] [-p <port>] [-s <speed>] [-r] <input> <output>
 
-WAV2AMBE [-a amplitude] [-g <signature>] [-m dstar|dmr|ysf|p25] [-f 0|1] [-p <port>] [-s <speed>] <input> <output>
+WAV2AMBE [-a amplitude] [-g <signature>] [-m dstar|dmr|ysf|p25] [-f 0|1] [-p <port>] [-s <speed>] [-r] <input> <output>
 
 where
 
@@ -22,5 +22,7 @@ where
 [-p <port>] is the serial port where the AMBE chip is attached, default is /dev/ttyUSB0
 
 [-s <speed>] is the speed of the AMBE chip interface, default is 230400 baud
+
+[-r] issue a 
 
 This is work in progress.

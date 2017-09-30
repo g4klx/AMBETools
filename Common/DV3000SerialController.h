@@ -40,8 +40,8 @@ const unsigned int AUDIO_BLOCK_SIZE = AUDIO_SAMPLE_RATE / 50U;
 
 class CDV3000SerialController {
 public:
-	CDV3000SerialController(const std::string& device, unsigned int speed, AMBE_MODE mode, bool fec, float amplitude, CAMBEFileReader* reader, CWAVFileWriter* writer);
-	CDV3000SerialController(const std::string& device, unsigned int speed, AMBE_MODE mode, bool fec, float amplitude, CWAVFileReader* reader, CAMBEFileWriter* writer);
+	CDV3000SerialController(const std::string& device, unsigned int speed, AMBE_MODE mode, bool fec, float amplitude, bool reset, CAMBEFileReader* reader, CWAVFileWriter* writer);
+	CDV3000SerialController(const std::string& device, unsigned int speed, AMBE_MODE mode, bool fec, float amplitude, bool reset, CWAVFileReader* reader, CAMBEFileWriter* writer);
 	~CDV3000SerialController();
 
 	bool open();
@@ -60,6 +60,7 @@ private:
 	AMBE_MODE         m_mode;
 	bool              m_fec;
 	float             m_amplitude;
+	bool              m_reset;
 	AMBE_DIRECTION    m_direction;
 	CWAVFileReader*   m_wavReader;
 	CWAVFileWriter*   m_wavWriter;
