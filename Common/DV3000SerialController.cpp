@@ -47,6 +47,22 @@ const unsigned int DV3000_REQ_DMR_NOFEC_LEN = 6U;
 // const unsigned char DV3000_REQ_DMR[] = { DV3000_START_BYTE, 0x00U, 0x0DU, DV3000_TYPE_CONTROL, DV3000_CONTROL_RATEP, 0x04U, 0x31U, 0x07U, 0x54U, 0x24U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x6FU, 0x48U };
 // const unsigned int DV3000_REQ_DMR_LEN = 17U;
 
+/*
+From: https://nw-digital-radio.groups.io/g/main/topic/2302628?p=Created,,,20,2,0,0
+
+For Fusion V/D mode type 2 (a HR mode), I'm setting the AMBE-3000 chip to a custom rate using the these parameters listed in the chip data sheet ..
+
+Total rate    Speech rate   FEC rate   RCW0    RCW1    RCW2    RCW3    RCW4    RCW5
+2450           2450             0           0x0431   0x0754   0x0000   0x0000   0x0000   0x7031
+
+And for Fusion FR mode I'm using ..
+
+Total rate    Speech rate   FEC rate   RCW0    RCW1    RCW2    RCW3    RCW4    RCW5
+7200           4400           2800        0x0458   0x0986   0x8020   0x0000   0x0000   0x7390
+*/
+const unsigned char DV3000_REQ_YSF_FEC[] = { DV3000_START_BYTE, 0x00U, 0x0DU, DV3000_TYPE_CONTROL, DV3000_CONTROL_RATEP, 0x04U, 0x58U, 0x09U, 0x86U, 0x80U, 0x20U, 0x00U, 0x00U, 0x00U, 0x00U, 0x73U, 0x90U };
+const unsigned int DV3000_REQ_YSF_FEC_LEN = 17U;
+
 const unsigned char DV3000_REQ_P25_FEC[] = { DV3000_START_BYTE, 0x00U, 0x0DU, DV3000_TYPE_CONTROL, DV3000_CONTROL_RATEP, 0x05U, 0x58U, 0x08U, 0x6BU, 0x10U, 0x30U, 0x00U, 0x00U, 0x00U, 0x00U, 0x01U, 0x90U };
 const unsigned int DV3000_REQ_P25_FEC_LEN = 17U;
 
@@ -131,6 +147,9 @@ bool CDV3000SerialController::open()
 		m_ambeBlockSize = 9U;
 	} else if (m_mode == MODE_DMR && !m_fec) {
 		m_serial.write(DV3000_REQ_DMR_NOFEC, DV3000_REQ_DMR_NOFEC_LEN);
+		m_ambeBlockSize = 9U;
+	} else if (m_mode == MODE_YSF && m_fec) {
+		m_serial.write(DV3000_REQ_YSF_FEC, DV3000_REQ_YSF_FEC_LEN);
 		m_ambeBlockSize = 9U;
 	} else if (m_mode == MODE_P25 && m_fec) {
 		m_serial.write(DV3000_REQ_P25_FEC, DV3000_REQ_P25_FEC_LEN);
