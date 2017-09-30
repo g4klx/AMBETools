@@ -163,16 +163,16 @@ bool CDV3000SerialController::open()
 		m_ambeBlockSize = 9U;
 	} else if (m_mode == MODE_DMR && !m_fec) {
 		m_serial.write(DV3000_REQ_DMR_NOFEC, DV3000_REQ_DMR_NOFEC_LEN);
-		m_ambeBlockSize = 9U;
+		m_ambeBlockSize = 7U;
 	} else if (m_mode == MODE_YSF && m_fec) {
 		m_serial.write(DV3000_REQ_YSF_FEC, DV3000_REQ_YSF_FEC_LEN);
-		m_ambeBlockSize = 9U;
+		m_ambeBlockSize = 18U;
 	} else if (m_mode == MODE_P25 && m_fec) {
 		m_serial.write(DV3000_REQ_P25_FEC, DV3000_REQ_P25_FEC_LEN);
-		m_ambeBlockSize = 9U;
+		m_ambeBlockSize = 18U;
 	} else if (m_mode == MODE_P25 && !m_fec) {
 		m_serial.write(DV3000_REQ_P25_NOFEC, DV3000_REQ_P25_NOFEC_LEN);
-		m_ambeBlockSize = 9U;
+		m_ambeBlockSize = 11U;
 	} else {
 		return false;
 	}
