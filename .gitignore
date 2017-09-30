@@ -1,8 +1,9 @@
 Debug
 Release
 x64
-AMBE2WAV
-WAV2AMBE
+ambe2wav
+wav2ambe
+*.a
 *.o
 *.opendb
 *.bak

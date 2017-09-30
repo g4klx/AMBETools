@@ -23,6 +23,6 @@ where
 
 [-s <speed>] is the speed of the AMBE chip interface, default is 230400 baud
 
-[-r] issue a 
+[-r] issue a reset at startup
 
 This is work in progress.
