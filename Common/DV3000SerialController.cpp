@@ -59,9 +59,16 @@ And for Fusion FR mode I'm using ..
 
 Total rate    Speech rate   FEC rate   RCW0    RCW1    RCW2    RCW3    RCW4    RCW5
 7200           4400           2800        0x0458   0x0986   0x8020   0x0000   0x0000   0x7390
+
+Well, their are 3 different rates Yaesu use ..
+
+3600 .. 2450 voice .. 1150 fec .. V/D mode 1 .. index 33
+2450 .. 2450 voice ..      0 fec ...V/D mode 2 .. index 34
+7200 .. 4400 voice .. 2800 fec ..  FR mode ......index 59
+all AMBE+2
 */
-const unsigned char DV3000_REQ_YSF_FEC[] = { DV3000_START_BYTE, 0x00U, 0x0DU, DV3000_TYPE_CONTROL, DV3000_CONTROL_RATEP, 0x04U, 0x58U, 0x09U, 0x86U, 0x80U, 0x20U, 0x00U, 0x00U, 0x00U, 0x00U, 0x73U, 0x90U };
-const unsigned int DV3000_REQ_YSF_FEC_LEN = 17U;
+const unsigned char DV3000_REQ_YSF_FEC[] = { DV3000_START_BYTE, 0x00U, 0x0DU, DV3000_TYPE_CONTROL, DV3000_CONTROL_RATET, 59U };
+const unsigned int DV3000_REQ_YSF_FEC_LEN = 6U;
 
 const unsigned char DV3000_REQ_P25_FEC[] = { DV3000_START_BYTE, 0x00U, 0x0DU, DV3000_TYPE_CONTROL, DV3000_CONTROL_RATEP, 0x05U, 0x58U, 0x08U, 0x6BU, 0x10U, 0x30U, 0x00U, 0x00U, 0x00U, 0x00U, 0x01U, 0x90U };
 const unsigned int DV3000_REQ_P25_FEC_LEN = 17U;
