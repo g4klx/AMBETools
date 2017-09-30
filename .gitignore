@@ -1,0 +1,17 @@
+Debug
+Release
+x64
+AMBE2WAV
+WAV2AMBE
+*.o
+*.opendb
+*.bak
+*.obj
+*~
+*.sdf
+*.log
+*.zip
+*.exe
+*.user
+*.VC.db
+.vs
