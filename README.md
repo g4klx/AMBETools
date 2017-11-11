@@ -5,9 +5,9 @@ different AMBE formats.
 There are two programs, AMBE2WAV and WAV2AMBE and their purposes are obvious from
 their names. The usage of them is:
 
-AMBE2WAV [-a amplitude] [-g <signature>] [-m dstar|dmr|ysf|p25] [-f 0|1] [-p <port>] [-s <speed>] [-r] <input> <output>
+ambe2wav [-a amplitude] [-g <signature>] [-m dstar|dmr|ysf|p25] [-f 0|1] [-p <port>] [-s <speed>] [-r] <input> <output>
 
-WAV2AMBE [-a amplitude] [-g <signature>] [-m dstar|dmr|ysf|p25] [-f 0|1] [-p <port>] [-s <speed>] [-r] <input> <output>
+wav2ambe [-a amplitude] [-g <signature>] [-m dstar|dmr|ysf|p25] [-f 0|1] [-p <port>] [-s <speed>] [-r] <input> <output>
 
 where
 
