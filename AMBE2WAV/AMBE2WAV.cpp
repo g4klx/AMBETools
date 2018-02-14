@@ -21,8 +21,14 @@
 #include "AMBEFileReader.h"
 #include "WAVFileWriter.h"
 #include "imbe_vocoder.h"
+#include "IMBEFEC.h"
 
 #include <cstring>
+
+const uint8_t  BIT_MASK_TABLE1[] = { 0x80U, 0x40U, 0x20U, 0x10U, 0x08U, 0x04U, 0x02U, 0x01U };
+
+#define WRITE_BIT1(p,i,b) p[(i)>>3] = (b) ? (p[(i)>>3] | BIT_MASK_TABLE1[(i)&7]) : (p[(i)>>3] & ~BIT_MASK_TABLE1[(i)&7])
+#define READ_BIT1(p,i)    (p[(i)>>3] & BIT_MASK_TABLE1[(i)&7])
 
 #if defined(_WIN32) || defined(_WIN64)
 char* optarg = NULL;
@@ -167,7 +173,35 @@ int CAMBE2WAV::run()
 	}
 
 	if (m_mode == MODE_P25) {
-		imbe_vocoder vocoder;
+		unsigned int blockSize = m_fec ? 18U : 11U;
+
+		uint8_t imbe[18U];
+		while (reader.read(imbe, blockSize) == blockSize) {
+			if (m_fec) {
+				uint8_t data[11U];
+
+				CIMBEFEC fec;
+				fec.decode(imbe, data);
+
+				::memcpy(imbe, data, 11U);
+			}
+
+			int16_t frame[88U];
+			for (unsigned int i = 0U; i < 88U; i++)
+				frame[i] = READ_BIT1(imbe, i) != 0x00U ? 1 : 0;
+
+			int16_t audioInt[AUDIO_BLOCK_SIZE];
+
+			imbe_vocoder vocoder;
+			vocoder.imbe_decode(frame, audioInt);
+
+			float audioFloat[AUDIO_BLOCK_SIZE];
+
+			for (unsigned int i = 0U; i < AUDIO_BLOCK_SIZE; i++)
+				audioFloat[i] = (float(audioInt[i]) - 128.0F) / 255.0F;
+
+			writer.write(audioFloat, AUDIO_BLOCK_SIZE);
+		}
 	} else {
 		CDV3000SerialController controller(m_port, m_speed, m_mode, m_fec, m_amplitude, m_reset, &reader, &writer);
 		ret = controller.open();
