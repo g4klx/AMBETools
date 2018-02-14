@@ -118,6 +118,7 @@
     <ClInclude Include="AMBEFileReader.h" />
     <ClInclude Include="AMBEFileWriter.h" />
     <ClInclude Include="DV3000SerialController.h" />
+    <ClInclude Include="IMBEFEC.h" />
     <ClInclude Include="SerialController.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="WAVFileReader.h" />
@@ -127,6 +128,7 @@
     <ClCompile Include="AMBEFileReader.cpp" />
     <ClCompile Include="AMBEFileWriter.cpp" />
     <ClCompile Include="DV3000SerialController.cpp" />
+    <ClCompile Include="IMBEFEC.cpp" />
     <ClCompile Include="SerialController.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="WAVFileReader.cpp" />

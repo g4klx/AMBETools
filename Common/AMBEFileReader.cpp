@@ -1,5 +1,5 @@
 /*
-*   Copyright (C) 2017 by Jonathan Naylor G4KLX
+*   Copyright (C) 2017,2018 by Jonathan Naylor G4KLX
 *
 *   This program is free software; you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -58,7 +58,7 @@ unsigned int CAMBEFileReader::read(uint8_t* buffer, unsigned int length)
 	assert(buffer != NULL);
 	assert(length > 0U);
 
-	return ::fread(buffer, sizeof(uint8_t), length, m_fp);
+	return (unsigned int)::fread(buffer, sizeof(uint8_t), length, m_fp);
 }
 
 void CAMBEFileReader::close()

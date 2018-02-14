@@ -1,5 +1,5 @@
 /*
-*   Copyright (C) 2017 by Jonathan Naylor G4KLX
+*   Copyright (C) 2017,2018 by Jonathan Naylor G4KLX
 *
 *   This program is free software; you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 
 #include "WAVFileReader.h"
 #include "AMBEFileWriter.h"
+#include "imbe_vocoder.h"
 
 #include <cstring>
 
@@ -177,17 +178,23 @@ int CWAV2AMBE::run()
 		return 1;
 	}
 
-	CDV3000SerialController controller(m_port, m_speed, m_mode, m_fec, m_amplitude, m_reset, &reader, &writer);
-	ret = controller.open();
-	if (!ret) {
-		writer.close();
-		reader.close();
-		return 1;
+	if (m_mode == MODE_P25) {
+		imbe_vocoder vocoder;
+
+	} else {
+		CDV3000SerialController controller(m_port, m_speed, m_mode, m_fec, m_amplitude, m_reset, &reader, &writer);
+		ret = controller.open();
+		if (!ret) {
+			writer.close();
+			reader.close();
+			return 1;
+		}
+
+		controller.process();
+
+		controller.close();
 	}
 
-	controller.process();
-
-	controller.close();
 	writer.close();
 	reader.close();
 
