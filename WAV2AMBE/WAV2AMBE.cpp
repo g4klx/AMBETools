@@ -1,5 +1,5 @@
 /*
-*   Copyright (C) 2017,2018 by Jonathan Naylor G4KLX
+*   Copyright (C) 2017,2018,2019 by Jonathan Naylor G4KLX
 *
 *   This program is free software; you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -68,7 +68,7 @@ int main(int argc, char** argv)
 	AMBE_MODE mode = MODE_DSTAR;
 	bool fec = true;
 	std::string port = "/dev/ttyUSB0";
-	unsigned int speed = 230400U;
+	unsigned int speed = 460800U;
 	bool reset = false;
 
 	int c;

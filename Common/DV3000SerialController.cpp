@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2014,2015,2017 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2014,2015,2017,2019 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -42,6 +42,9 @@ const unsigned int DV3000_REQ_RESET_LEN = 11U;
 const unsigned char DV3000_REQ_DSTAR_FEC[]  = {DV3000_START_BYTE, 0x00U, 0x0DU, DV3000_TYPE_CONTROL, DV3000_CONTROL_RATEP, 0x01U, 0x30U, 0x07U, 0x63U, 0x40U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x48U};
 const unsigned int DV3000_REQ_DSTAR_FEC_LEN = 17U;
 
+const unsigned char DV3000_REQ_DSTAR_NOFEC[]  = {DV3000_START_BYTE, 0x00U, 0x0DU, DV3000_TYPE_CONTROL, DV3000_CONTROL_RATET, 0U};
+const unsigned int DV3000_REQ_DSTAR_NOFEC_LEN = 6U;
+
 const unsigned char DV3000_REQ_DMR_FEC[]    = { DV3000_START_BYTE, 0x00U, 0x02U, DV3000_TYPE_CONTROL, DV3000_CONTROL_RATET, 33U };
 const unsigned int DV3000_REQ_DMR_FEC_LEN   = 6U;
 
@@ -73,6 +76,9 @@ all AMBE+2
 */
 const unsigned char DV3000_REQ_YSF_FEC[] = { DV3000_START_BYTE, 0x00U, 0x0DU, DV3000_TYPE_CONTROL, DV3000_CONTROL_RATET, 59U };
 const unsigned int DV3000_REQ_YSF_FEC_LEN = 6U;
+
+const unsigned char DV3000_REQ_YSF_NOFEC[] = { DV3000_START_BYTE, 0x00U, 0x0DU, DV3000_TYPE_CONTROL, DV3000_CONTROL_RATET, 41U };
+const unsigned int DV3000_REQ_YSF_NOFEC_LEN = 6U;
 
 const unsigned char DV3000_REQ_P25_FEC[] = { DV3000_START_BYTE, 0x00U, 0x0DU, DV3000_TYPE_CONTROL, DV3000_CONTROL_RATEP, 0x05U, 0x58U, 0x08U, 0x6BU, 0x10U, 0x30U, 0x00U, 0x00U, 0x00U, 0x00U, 0x01U, 0x90U };
 const unsigned int DV3000_REQ_P25_FEC_LEN = 17U;
@@ -155,9 +161,12 @@ bool CDV3000SerialController::open()
 		return false;
 	}
 
-	if (m_mode == MODE_DSTAR) {
+	if (m_mode == MODE_DSTAR && m_fec) {
 		m_serial.write(DV3000_REQ_DSTAR_FEC, DV3000_REQ_DSTAR_FEC_LEN);
 		m_ambeBlockSize = 9U;
+	} else if (m_mode == MODE_DSTAR && !m_fec) {
+		m_serial.write(DV3000_REQ_DSTAR_NOFEC, DV3000_REQ_DSTAR_NOFEC_LEN);
+		m_ambeBlockSize = 6U;
 	} else if (m_mode == MODE_DMR && m_fec) {
 		m_serial.write(DV3000_REQ_DMR_FEC, DV3000_REQ_DMR_FEC_LEN);
 		m_ambeBlockSize = 9U;
@@ -167,6 +176,9 @@ bool CDV3000SerialController::open()
 	} else if (m_mode == MODE_YSF && m_fec) {
 		m_serial.write(DV3000_REQ_YSF_FEC, DV3000_REQ_YSF_FEC_LEN);
 		m_ambeBlockSize = 18U;
+	} else if (m_mode == MODE_YSF && !m_fec) {
+		m_serial.write(DV3000_REQ_YSF_NOFEC, DV3000_REQ_YSF_NOFEC_LEN);
+		m_ambeBlockSize = 11U;
 	} else if (m_mode == MODE_P25 && m_fec) {
 		m_serial.write(DV3000_REQ_P25_FEC, DV3000_REQ_P25_FEC_LEN);
 		m_ambeBlockSize = 18U;

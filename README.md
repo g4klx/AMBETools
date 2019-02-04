@@ -17,11 +17,11 @@ where
 
 [-m dstar|dmr|ysf|p25] is the mode for which the AMBE will be generated. Note that P25 requires special hardware.
 
-[-f 0|1] is whether FEC should be applied. This only applies to DMR and P25
+[-f 0|1] is whether FEC should be applied.
 
 [-p <port>] is the serial port where the AMBE chip is attached, default is /dev/ttyUSB0
 
-[-s <speed>] is the speed of the AMBE chip interface, default is 230400 baud
+[-s <speed>] is the speed of the AMBE chip interface, default is 460800 baud
 
 [-r] issue a reset at startup
 
