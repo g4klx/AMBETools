@@ -122,16 +122,6 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	if (mode == MODE_DSTAR && !fec) {
-		::fprintf(stderr, "WAV2AMBE: incompatible mode and FEC settings\n");
-		return 1;
-	}
-
-	if (mode == MODE_YSF && !fec) {
-		::fprintf(stderr, "WAV2AMBE: incompatible mode and FEC settings\n");
-		return 1;
-	}
-
 	CWAV2AMBE* WAV2AMBE = new CWAV2AMBE(signature, mode, fec, port, speed, amplitude, reset, std::string(argv[argc - 2]), std::string(argv[argc - 1]));
 
 	int ret = WAV2AMBE->run();
