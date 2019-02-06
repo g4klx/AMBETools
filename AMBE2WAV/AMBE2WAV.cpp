@@ -20,8 +20,10 @@
 
 #include "AMBEFileReader.h"
 #include "WAVFileWriter.h"
+#if defined(USE_IMBE_VOCODER_LIB)
 #include "imbe_vocoder.h"
 #include "IMBEFEC.h"
+#endif
 
 #include <cstring>
 
@@ -162,6 +164,7 @@ int CAMBE2WAV::run()
 		return 1;
 	}
 
+#if defined(USE_IMBE_VOCODER_LIB)
 	if (m_mode == MODE_P25) {
 		unsigned int blockSize = m_fec ? 18U : 11U;
 
@@ -193,6 +196,7 @@ int CAMBE2WAV::run()
 			writer.write(audioFloat, AUDIO_BLOCK_SIZE);
 		}
 	} else {
+#endif
 		CDV3000SerialController controller(m_port, m_speed, m_mode, m_fec, m_amplitude, m_reset, &reader, &writer);
 		ret = controller.open();
 		if (!ret) {
@@ -204,7 +208,9 @@ int CAMBE2WAV::run()
 		controller.process();
 
 		controller.close();
+#if defined(USE_IMBE_VOCODER_LIB)
 	}
+#endif
 
 	writer.close();
 	reader.close();
