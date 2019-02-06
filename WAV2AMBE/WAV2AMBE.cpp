@@ -74,7 +74,7 @@ int main(int argc, char** argv)
 	bool reset = false;
 
 	int c;
-	while ((c = ::getopt(argc, argv, "a:f:g:m:p:rs:")) != -1) {
+	while ((c = ::getopt(argc, argv, "a:f:g:m:p:r:s:")) != -1) {
 		switch (c) {
 		case 'a':
 			amplitude = float(::atof(optarg));
@@ -101,7 +101,7 @@ int main(int argc, char** argv)
 			port = std::string(optarg);
 			break;
 		case 'r':
-			reset = true;
+			reset = ::atoi(optarg) != 0;
 			break;
 		case 's':
 			speed = (unsigned int)::atoi(optarg);
@@ -109,13 +109,13 @@ int main(int argc, char** argv)
 		case '?':
 			break;
 		default:
-			fprintf(stderr, "Usage: WAV2AMBE [-a amplitude] [-g <signature>] [-m dstar|dmr|ysf|p25] [-f 0|1] [-p <port>] [-s <speed>] [-r] <input> <output>\n");
+			fprintf(stderr, "Usage: WAV2AMBE [-a amplitude] [-g <signature>] [-m dstar|dmr|ysf|p25] [-f 0|1] [-p <port>] [-s <speed>] [-r 0|1] <input> <output>\n");
 			break;
 		}
 	}
 
 	if (optind > (argc - 2)) {
-		fprintf(stderr, "Usage: WAV2AMBE [-a amplitude] [-g <signature>] [-m dstar|dmr|ysf|p25] [-f 0|1] [-p <port>] [-s <speed>] [-r] <input> <output>\n");
+		fprintf(stderr, "Usage: WAV2AMBE [-a amplitude] [-g <signature>] [-m dstar|dmr|ysf|p25] [-f 0|1] [-p <port>] [-s <speed>] [-r 0|1] <input> <output>\n");
 		return 1;
 	}
 
