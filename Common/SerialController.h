@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2002-2004,2007-2009,2011-2013,2015-2017 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2002-2004,2007-2009,2011-2013,2015-2017,2019 by Jonathan Naylor G4KLX
  *   Copyright (C) 1999-2001 by Thomas Sailor HB9JNX
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -60,10 +60,6 @@ private:
 	HANDLE         m_handle;
 #else
 	int            m_fd;
-#endif
-
-#if defined(_WIN32) || defined(_WIN64)
-	int readNonblock(unsigned char* buffer, unsigned int length);
 #endif
 };
 

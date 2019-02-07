@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2002-2004,2007-2011,2013,2014-2017 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2002-2004,2007-2011,2013,2014-2017,2019 by Jonathan Naylor G4KLX
  *   Copyright (C) 1999-2001 by Thomas Sailor HB9JNX
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -102,9 +102,9 @@ bool CSerialController::open()
 		return false;
 	}
 
-	timeouts.ReadIntervalTimeout        = MAXDWORD;
-	timeouts.ReadTotalTimeoutMultiplier = 0UL;
-	timeouts.ReadTotalTimeoutConstant   = 0UL;
+	timeouts.ReadIntervalTimeout        = 50UL;
+	timeouts.ReadTotalTimeoutMultiplier = 50UL;
+	timeouts.ReadTotalTimeoutConstant   = 50UL;
 
 	if (!::SetCommTimeouts(m_handle, &timeouts)) {
 		::fprintf(stderr, "Cannot set the timeouts for %s, err=%04lx\n", m_device.c_str(), ::GetLastError());
@@ -137,47 +137,8 @@ int CSerialController::read(unsigned char* buffer, unsigned int length)
 	assert(m_handle != INVALID_HANDLE_VALUE);
 	assert(buffer != NULL);
 
-	unsigned int ptr = 0U;
-
-	while (ptr < length) {
-		int ret = readNonblock(buffer + ptr, length - ptr);
-		if (ret < 0) {
-			return ret;
-		} else if (ret == 0) {
-			if (ptr == 0U)
-				return 0;
-		} else {
-			ptr += ret;
-		}
-	}
-
-	return int(length);
-}
-
-int CSerialController::readNonblock(unsigned char* buffer, unsigned int length)
-{
-	assert(m_handle != INVALID_HANDLE_VALUE);
-	assert(buffer != NULL);
-
-	if (length == 0U)
-		return 0;
-
-	DWORD errors;
-	COMSTAT status;
-	if (::ClearCommError(m_handle, &errors, &status) == 0) {
-		::fprintf(stderr, "Error from ClearCommError for %s, err=%04lx\n", m_device.c_str(), ::GetLastError());
-		return -1;
-	}
-
-	if (status.cbInQue == 0UL)
-		return 0;
-
-	DWORD readLength = status.cbInQue;
-	if (length < readLength)
-		readLength = length;
-
 	DWORD bytes = 0UL;
-	BOOL ret = ::ReadFile(m_handle, buffer, readLength, &bytes, NULL);
+	BOOL ret = ::ReadFile(m_handle, buffer, DWORD(length), &bytes, NULL);
 	if (!ret) {
 		::fprintf(stderr, "Error from ReadFile for %s: %04lx\n", m_device.c_str(), ::GetLastError());
 		return -1;
