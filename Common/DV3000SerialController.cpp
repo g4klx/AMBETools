@@ -175,33 +175,35 @@ bool CDV3000SerialController::open()
 
 	if (m_mode == MODE_DSTAR && m_fec) {
 		m_serial.write(DV3000_REQ_DSTAR_FEC, DV3000_REQ_DSTAR_FEC_LEN);
-		CUtils::dump("Configure D-Star + FEC", DV3000_REQ_DSTAR_FEC, DV3000_REQ_DSTAR_FEC_LEN);
+		// CUtils::dump("Configure D-Star + FEC", DV3000_REQ_DSTAR_FEC, DV3000_REQ_DSTAR_FEC_LEN);
 		m_ambeBlockSize = 9U;
 	} else if (m_mode == MODE_DSTAR && !m_fec) {
 		m_serial.write(DV3000_REQ_DSTAR_NOFEC, DV3000_REQ_DSTAR_NOFEC_LEN);
-		CUtils::dump("Configure D-Star", DV3000_REQ_DSTAR_NOFEC, DV3000_REQ_DSTAR_NOFEC_LEN);
+		// CUtils::dump("Configure D-Star", DV3000_REQ_DSTAR_NOFEC, DV3000_REQ_DSTAR_NOFEC_LEN);
 		m_ambeBlockSize = 6U;
 	} else if (m_mode == MODE_DMR && m_fec) {
 		m_serial.write(DV3000_REQ_DMR_FEC, DV3000_REQ_DMR_FEC_LEN);
-		CUtils::dump("Configure DMR + FEC", DV3000_REQ_DMR_FEC, DV3000_REQ_DMR_FEC_LEN);
+		// CUtils::dump("Configure DMR + FEC", DV3000_REQ_DMR_FEC, DV3000_REQ_DMR_FEC_LEN);
 		m_ambeBlockSize = 9U;
 	} else if (m_mode == MODE_DMR && !m_fec) {
 		m_serial.write(DV3000_REQ_DMR_NOFEC, DV3000_REQ_DMR_NOFEC_LEN);
-		CUtils::dump("Configure DMR", DV3000_REQ_DMR_NOFEC, DV3000_REQ_DMR_NOFEC_LEN);
+		// CUtils::dump("Configure DMR", DV3000_REQ_DMR_NOFEC, DV3000_REQ_DMR_NOFEC_LEN);
 		m_ambeBlockSize = 7U;
 	} else if (m_mode == MODE_YSF && m_fec) {
 		m_serial.write(DV3000_REQ_YSF_FEC, DV3000_REQ_YSF_FEC_LEN);
-		CUtils::dump("Configure YSF + FEC", DV3000_REQ_YSF_FEC, DV3000_REQ_YSF_FEC_LEN);
+		// CUtils::dump("Configure YSF + FEC", DV3000_REQ_YSF_FEC, DV3000_REQ_YSF_FEC_LEN);
 		m_ambeBlockSize = 18U;
 	} else if (m_mode == MODE_YSF && !m_fec) {
 		m_serial.write(DV3000_REQ_YSF_NOFEC, DV3000_REQ_YSF_NOFEC_LEN);
-		CUtils::dump("Configure YSF", DV3000_REQ_YSF_NOFEC, DV3000_REQ_YSF_NOFEC_LEN);
+		// CUtils::dump("Configure YSF", DV3000_REQ_YSF_NOFEC, DV3000_REQ_YSF_NOFEC_LEN);
 		m_ambeBlockSize = 11U;
 	} else if (m_mode == MODE_P25 && m_fec) {
 		m_serial.write(DV3000_REQ_P25_FEC, DV3000_REQ_P25_FEC_LEN);
+		// CUtils::dump("Configure P25 + FEC", DV3000_REQ_P25_FEC, DV3000_REQ_P25_FEC_LEN);
 		m_ambeBlockSize = 18U;
 	} else if (m_mode == MODE_P25 && !m_fec) {
 		m_serial.write(DV3000_REQ_P25_NOFEC, DV3000_REQ_P25_NOFEC_LEN);
+		// CUtils::dump("Configure P25", DV3000_REQ_P25_NOFEC, DV3000_REQ_P25_NOFEC_LEN);
 		m_ambeBlockSize = 11U;
 	} else {
 		return false;
