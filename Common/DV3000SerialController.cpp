@@ -150,6 +150,11 @@ bool CDV3000SerialController::open()
 		m_serial.write(DV3000_REQ_RESET, DV3000_REQ_RESET_LEN);
 
 		RESP_TYPE type = getResponse(buffer, BUFFER_LENGTH);
+		while (resp == RESP_NONE) {
+			CUtils::sleep(10U);
+			type = getResponse(buffer, BUFFER_LENGTH);
+		}
+
 		if (type != RESP_READY) {
 			m_serial.close();
 			return false;
@@ -159,10 +164,9 @@ bool CDV3000SerialController::open()
 	m_serial.write(DV3000_REQ_PRODID, DV3000_REQ_PRODID_LEN);
 
 	RESP_TYPE type = getResponse(buffer, BUFFER_LENGTH);
-
-	if (type == RESP_ERROR) {
-		m_serial.close();
-		return false;
+	while (resp == RESP_NONE) {
+		CUtils::sleep(10U);
+		type = getResponse(buffer, BUFFER_LENGTH);
 	}
 
 	if (type == RESP_NAME) {
@@ -210,16 +214,17 @@ bool CDV3000SerialController::open()
 	}
 
 	type = getResponse(buffer, BUFFER_LENGTH);
+	while (resp == RESP_NONE) {
+		CUtils::sleep(10U);
+		type = getResponse(buffer, BUFFER_LENGTH);
+	}
 
-	if (type == RESP_ERROR) {
+	if (type != RESP_ERROR && type != RESP_RATET) {
 		m_serial.close();
 		return false;
 	}
 
-	if (type == RESP_RATEP || type == RESP_RATET)
-		return true;
-
-	return false;
+	return true;
 }
 
 void CDV3000SerialController::process()
@@ -228,30 +233,46 @@ void CDV3000SerialController::process()
 		assert(m_wavReader != NULL);
 		assert(m_ambeWriter != NULL);
 
-		float audio[AUDIO_BLOCK_SIZE];
-		while (m_wavReader->read(audio, AUDIO_BLOCK_SIZE) == AUDIO_BLOCK_SIZE) {
-			encodeIn(audio, AUDIO_BLOCK_SIZE);
+		do {
+			unsigned int outstanding = m_inCount - m_outCount;
+			if (outstanding < 4U) {
+				float audio[AUDIO_BLOCK_SIZE];
+				if (m_wavReader->read(audio, AUDIO_BLOCK_SIZE) == AUDIO_BLOCK_SIZE) {
+					encodeIn(audio, AUDIO_BLOCK_SIZE);
+					m_inCount++;
+				}
+			}
+
+			CUtils::sleep(10U);
 
 			unsigned char ambe[25U];
-			while (!encodeOut(ambe, m_ambeBlockSize))
-				CUtils::sleep(10U);
-
-			m_ambeWriter->write(ambe, m_ambeBlockSize);
-		}
+			if (encodeOut(ambe, m_ambeBlockSize)) {
+				m_ambeWriter->write(ambe, m_ambeBlockSize);
+				m_outCount++;
+			}
+		} while (m_inCount != m_outCount);
 	} else {
 		assert(m_ambeReader != NULL);
 		assert(m_wavWriter != NULL);
 
-		unsigned char ambe[25U];
-		while (m_ambeReader->read(ambe, m_ambeBlockSize) == m_ambeBlockSize) {
-			decodeIn(ambe, m_ambeBlockSize);
+		do {
+			unsigned int outstanding = m_inCount - m_outCount;
+			if (outstanding < 4U) {
+				unsigned char ambe[25U];
+				if (m_ambeReader->read(ambe, m_ambeBlockSize) == m_ambeBlockSize) {
+					decodeIn(ambe, m_ambeBlockSize);
+					m_inCount++;
+				}
+			}
+
+			CUtils::sleep(10U);
 
 			float audio[AUDIO_BLOCK_SIZE];
-			while (!decodeOut(audio, AUDIO_BLOCK_SIZE))
-				CUtils::sleep(10U);
-
-			m_wavWriter->write(audio, AUDIO_BLOCK_SIZE);
-		}
+			if (decodeOut(audio, AUDIO_BLOCK_SIZE)) {
+				m_wavWriter->write(audio, AUDIO_BLOCK_SIZE);
+				m_outCount++;
+			}
+		} while (m_inCount != m_outCount);
 	}
 }
 
@@ -271,8 +292,6 @@ void CDV3000SerialController::encodeIn(const float* audio, unsigned int length)
 	}
 
 	m_serial.write(buffer, DV3000_AUDIO_HEADER_LEN + AUDIO_BLOCK_SIZE * 2U);
-
-	m_inCount++;
 }
 
 bool CDV3000SerialController::encodeOut(unsigned char* ambe, unsigned int length)
@@ -285,8 +304,6 @@ bool CDV3000SerialController::encodeOut(unsigned char* ambe, unsigned int length
 		return false;
 
 	::memcpy(ambe, buffer + DV3000_AMBE_HEADER_LEN, m_ambeBlockSize);
-
-	m_outCount++;
 
 	return true;
 }
@@ -301,8 +318,6 @@ void CDV3000SerialController::decodeIn(const unsigned char* ambe, unsigned int l
 	::memcpy(buffer + DV3000_AMBE_HEADER_LEN, ambe, m_ambeBlockSize);
 
 	m_serial.write(buffer, DV3000_AMBE_HEADER_LEN + m_ambeBlockSize);
-
-	m_inCount++;
 }
 
 bool CDV3000SerialController::decodeOut(float* audio, unsigned int length)
@@ -321,8 +336,6 @@ bool CDV3000SerialController::decodeOut(float* audio, unsigned int length)
 		audio[i] = float(word) * m_amplitude / 32768.0F;
 	}
 
-	m_outCount++;
-
 	return true;
 }
 
@@ -336,7 +349,13 @@ CDV3000SerialController::RESP_TYPE CDV3000SerialController::getResponse(unsigned
 	assert(buffer != NULL);
 	assert(length >= BUFFER_LENGTH);
 
-	unsigned int offset = 0U;
+	int len = m_serial.read(buffer, 1U);
+	if (len < 0)
+		return RESP_ERROR;
+	else if (len == 0)
+		return RESP_NONE;
+
+	unsigned int offset = 1U;
 
 	while (offset < 3U) {
 		int len = m_serial.read(buffer + offset, 3U - offset);
