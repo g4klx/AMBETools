@@ -355,6 +355,9 @@ CDV3000SerialController::RESP_TYPE CDV3000SerialController::getResponse(unsigned
 	else if (len == 0)
 		return RESP_NONE;
 
+	if (buffer[0U] != DV3000_START_BYTE)
+		return RESP_NONE;
+
 	unsigned int offset = 1U;
 
 	while (offset < 3U) {
