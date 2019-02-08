@@ -299,49 +299,29 @@ int CSerialController::read(unsigned char* buffer, unsigned int length)
 	assert(buffer != NULL);
 	assert(m_fd != -1);
 
-	if (length == 0U)
+	fd_set fds;
+	FD_ZERO(&fds);
+	FD_SET(m_fd, &fds);
+
+	struct timeval tv;
+	tv.tv_sec  = 0;
+	tv.tv_usec = 0;
+
+	int n = ::select(m_fd + 1, &fds, NULL, NULL, &tv);
+	if (n == 0)
 		return 0;
-
-	unsigned int offset = 0U;
-
-	while (offset < length) {
-		fd_set fds;
-		FD_ZERO(&fds);
-		FD_SET(m_fd, &fds);
-
-		int n;
-		if (offset == 0U) {
-			struct timeval tv;
-			tv.tv_sec  = 0;
-			tv.tv_usec = 0;
-
-			n = ::select(m_fd + 1, &fds, NULL, NULL, &tv);
-			if (n == 0)
-				return 0;
-		} else {
-			n = ::select(m_fd + 1, &fds, NULL, NULL, NULL);
-		}
-
-		if (n < 0) {
-			::fprintf(stderr, "Error from select(), errno=%d\n", errno);
-			return -1;
-		}
-
-		if (n > 0) {
-			ssize_t len = ::read(m_fd, buffer + offset, length - offset);
-			if (len < 0) {
-				if (errno != EAGAIN) {
-					::fprintf(stderr, "Error from read(), errno=%d\n", errno);
-					return -1;
-				}
-			}
-
-			if (len > 0)
-				offset += len;
-		}
+	if (n < 0) {
+		::fprintf(stderr, "Error from select(), errno=%d\n", errno);
+		return -1;
 	}
 
-	return length;
+	ssize_t len = ::read(m_fd, buffer, length);
+	if (len < 0) {
+		::fprintf(stderr, "Error from read(), errno=%d\n", errno);
+		return -1;
+	}
+
+	return int(len);
 }
 
 int CSerialController::write(const unsigned char* buffer, unsigned int length)
