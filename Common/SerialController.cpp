@@ -102,9 +102,9 @@ bool CSerialController::open()
 		return false;
 	}
 
-	timeouts.ReadIntervalTimeout        = 50UL;
-	timeouts.ReadTotalTimeoutMultiplier = 50UL;
-	timeouts.ReadTotalTimeoutConstant   = 50UL;
+	timeouts.ReadIntervalTimeout        = MAXDWORD;
+	timeouts.ReadTotalTimeoutMultiplier = 0UL;
+	timeouts.ReadTotalTimeoutConstant   = 0UL;
 
 	if (!::SetCommTimeouts(m_handle, &timeouts)) {
 		::fprintf(stderr, "Cannot set the timeouts for %s, err=%04lx\n", m_device.c_str(), ::GetLastError());
