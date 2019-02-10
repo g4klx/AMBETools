@@ -5,6 +5,7 @@ ambe2wav
 wav2ambe
 *.a
 *.o
+*.d
 *.opendb
 *.bak
 *.obj

@@ -20,6 +20,7 @@
 #include "Utils.h"
 
 #include <cassert>
+#include <cstring>
 
 const unsigned char DV3000_START_BYTE   = 0x61U;
 
