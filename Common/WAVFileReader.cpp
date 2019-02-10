@@ -431,8 +431,6 @@ unsigned int CWAVFileReader::read(float* data, unsigned int length)
 			if (n == 0U)
 				return 0U;
 
-			n /= sizeof(uint8_t);
-
 			for (i = 0U; i < n; i++)
 				data[i] = (float(m_buffer8[i]) - 127.0F) / 128.0F;
 
@@ -444,8 +442,6 @@ unsigned int CWAVFileReader::read(float* data, unsigned int length)
 
 			if (n == 0U)
 				return 0U;
-
-			n /= sizeof(int16_t);
 
 			for (i = 0U; i < n; i++)
 				data[i] = float(m_buffer16[i]) / 32768.0F;
@@ -459,20 +455,10 @@ unsigned int CWAVFileReader::read(float* data, unsigned int length)
 			if (n == 0U)
 				return 0U;
 
-			n /= (sizeof(float) * m_channels);
+			for (i = 0U; i < n; i++)
+				data[i] = m_buffer32[i];
 
-			switch (m_channels) {
-				case 1U:
-					for (i = 0U; i < n; i++)
-						data[i] = m_buffer32[i];
-					break;
-				case 2U:
-					for (i = 0U; i < n; i++) {
-						data[i * 2U + 0U] = m_buffer32[i * 2U + 0U];
-						data[i * 2U + 1U] = m_buffer32[i * 2U + 1U];
-					}
-					break;
-			}
+			n /= m_channels;
 			break;
 	}
 

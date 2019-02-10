@@ -285,6 +285,7 @@ void CDV3000SerialController::encodeIn(const float* audio, unsigned int length)
 	}
 
 	m_serial.write(buffer, DV3000_AUDIO_HEADER_LEN + AUDIO_BLOCK_SIZE * 2U);
+	// CUtils::dump("encodeIn", buffer, DV3000_AUDIO_HEADER_LEN + AUDIO_BLOCK_SIZE * 2U);
 }
 
 bool CDV3000SerialController::encodeOut(unsigned char* ambe, unsigned int length)
@@ -295,6 +296,8 @@ bool CDV3000SerialController::encodeOut(unsigned char* ambe, unsigned int length
 	RESP_TYPE type = getResponse(buffer, BUFFER_LENGTH);
 	if (type != RESP_AMBE)
 		return false;
+
+	// CUtils::dump("encodeOut", buffer, m_ambeBlockSize + DV3000_AMBE_HEADER_LEN);
 
 	::memcpy(ambe, buffer + DV3000_AMBE_HEADER_LEN, m_ambeBlockSize);
 
@@ -311,6 +314,7 @@ void CDV3000SerialController::decodeIn(const unsigned char* ambe, unsigned int l
 	::memcpy(buffer + DV3000_AMBE_HEADER_LEN, ambe, m_ambeBlockSize);
 
 	m_serial.write(buffer, DV3000_AMBE_HEADER_LEN + m_ambeBlockSize);
+	// CUtils::dump("decodeIn", buffer, DV3000_AMBE_HEADER_LEN + m_ambeBlockSize);
 }
 
 bool CDV3000SerialController::decodeOut(float* audio, unsigned int length)
@@ -321,6 +325,8 @@ bool CDV3000SerialController::decodeOut(float* audio, unsigned int length)
 	RESP_TYPE type = getResponse(buffer, BUFFER_LENGTH);
 	if (type != RESP_AUDIO)
 		return false;
+
+	// CUtils::dump("decodeOut", buffer, 30U);
 
 	uint8_t* q = (uint8_t*)(buffer + DV3000_AUDIO_HEADER_LEN);
 	for (unsigned int i = 0U; i < AUDIO_BLOCK_SIZE; i++, q += 2U) {
@@ -348,8 +354,6 @@ CDV3000SerialController::RESP_TYPE CDV3000SerialController::getResponse(unsigned
 	else if (len == 0)
 		return RESP_NONE;
 
-	CUtils::dump("Read 1", buffer, 1U);
-
 	if (buffer[0U] != DV3000_START_BYTE)
 		return RESP_NONE;
 
@@ -365,8 +369,6 @@ CDV3000SerialController::RESP_TYPE CDV3000SerialController::getResponse(unsigned
 			offset += len;
 	}
 
-	CUtils::dump("Read 2", buffer, 3U);
-
 	unsigned int respLen = (buffer[1U] & 0x0FU) * 256U + buffer[2U] + DV3000_HEADER_LEN;
 
 	while (offset < respLen) {
@@ -378,8 +380,6 @@ CDV3000SerialController::RESP_TYPE CDV3000SerialController::getResponse(unsigned
 		else
 			offset += len;
 	}
-
-	CUtils::dump("Read 3", buffer, respLen);
 
 	if (buffer[3U] == DV3000_TYPE_AUDIO) {
 		return RESP_AUDIO;
