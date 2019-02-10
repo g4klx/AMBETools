@@ -147,83 +147,75 @@ bool CDV3000SerialController::open()
 
 	unsigned char buffer[BUFFER_LENGTH];
 
-	if (m_reset) {
-		m_serial.write(DV3000_REQ_RESET, DV3000_REQ_RESET_LEN);
+	RESP_TYPE type;
 
-		RESP_TYPE type = getResponse(buffer, BUFFER_LENGTH);
-		while (resp == RESP_NONE) {
+	if (m_reset) {
+		do {
+			m_serial.write(DV3000_REQ_RESET, DV3000_REQ_RESET_LEN);
+
+			type = getResponse(buffer, BUFFER_LENGTH);
+			for (unsigned int i = 0U; i < 100U && type != RESP_READY; i++) {
+				CUtils::sleep(10U);
+				type = getResponse(buffer, BUFFER_LENGTH);
+			}
+		} while (type != RESP_READY);
+	}
+
+	do {
+		m_serial.write(DV3000_REQ_PRODID, DV3000_REQ_PRODID_LEN);
+
+		type = getResponse(buffer, BUFFER_LENGTH);
+		for (unsigned int i = 0U; i < 100U && type != RESP_NAME; i++) {
 			CUtils::sleep(10U);
 			type = getResponse(buffer, BUFFER_LENGTH);
 		}
+	} while (type != RESP_NAME);
 
-		if (type != RESP_READY) {
-			m_serial.close();
+	::fprintf(stdout, "DV3000 chip identified as: %s\n", buffer + 5U);
+
+	do {
+		if (m_mode == MODE_DSTAR && m_fec) {
+			m_serial.write(DV3000_REQ_DSTAR_FEC, DV3000_REQ_DSTAR_FEC_LEN);
+			// CUtils::dump("Configure D-Star + FEC", DV3000_REQ_DSTAR_FEC, DV3000_REQ_DSTAR_FEC_LEN);
+			m_ambeBlockSize = 9U;
+		} else if (m_mode == MODE_DSTAR && !m_fec) {
+			m_serial.write(DV3000_REQ_DSTAR_NOFEC, DV3000_REQ_DSTAR_NOFEC_LEN);
+			// CUtils::dump("Configure D-Star", DV3000_REQ_DSTAR_NOFEC, DV3000_REQ_DSTAR_NOFEC_LEN);
+			m_ambeBlockSize = 6U;
+		} else if (m_mode == MODE_DMR && m_fec) {
+			m_serial.write(DV3000_REQ_DMR_FEC, DV3000_REQ_DMR_FEC_LEN);
+			// CUtils::dump("Configure DMR + FEC", DV3000_REQ_DMR_FEC, DV3000_REQ_DMR_FEC_LEN);
+			m_ambeBlockSize = 9U;
+		} else if (m_mode == MODE_DMR && !m_fec) {
+			m_serial.write(DV3000_REQ_DMR_NOFEC, DV3000_REQ_DMR_NOFEC_LEN);
+			// CUtils::dump("Configure DMR", DV3000_REQ_DMR_NOFEC, DV3000_REQ_DMR_NOFEC_LEN);
+			m_ambeBlockSize = 7U;
+		} else if (m_mode == MODE_YSF && m_fec) {
+			m_serial.write(DV3000_REQ_YSF_FEC, DV3000_REQ_YSF_FEC_LEN);
+			// CUtils::dump("Configure YSF + FEC", DV3000_REQ_YSF_FEC, DV3000_REQ_YSF_FEC_LEN);
+			m_ambeBlockSize = 18U;
+		} else if (m_mode == MODE_YSF && !m_fec) {
+			m_serial.write(DV3000_REQ_YSF_NOFEC, DV3000_REQ_YSF_NOFEC_LEN);
+			// CUtils::dump("Configure YSF", DV3000_REQ_YSF_NOFEC, DV3000_REQ_YSF_NOFEC_LEN);
+			m_ambeBlockSize = 11U;
+		} else if (m_mode == MODE_P25 && m_fec) {
+			m_serial.write(DV3000_REQ_P25_FEC, DV3000_REQ_P25_FEC_LEN);
+			// CUtils::dump("Configure P25 + FEC", DV3000_REQ_P25_FEC, DV3000_REQ_P25_FEC_LEN);
+			m_ambeBlockSize = 18U;
+		} else if (m_mode == MODE_P25 && !m_fec) {
+			m_serial.write(DV3000_REQ_P25_NOFEC, DV3000_REQ_P25_NOFEC_LEN);
+			// CUtils::dump("Configure P25", DV3000_REQ_P25_NOFEC, DV3000_REQ_P25_NOFEC_LEN);
+			m_ambeBlockSize = 11U;
+		} else {
 			return false;
 		}
-	}
 
-	m_serial.write(DV3000_REQ_PRODID, DV3000_REQ_PRODID_LEN);
-
-	RESP_TYPE type = getResponse(buffer, BUFFER_LENGTH);
-	while (resp == RESP_NONE) {
-		CUtils::sleep(10U);
 		type = getResponse(buffer, BUFFER_LENGTH);
-	}
-
-	if (type == RESP_NAME) {
-		std::string name((char*)(buffer + 5U));
-		::fprintf(stdout, "DV3000 chip identified as: %s\n", name.c_str());
-	} else {
-		m_serial.close();
-		return false;
-	}
-
-	if (m_mode == MODE_DSTAR && m_fec) {
-		m_serial.write(DV3000_REQ_DSTAR_FEC, DV3000_REQ_DSTAR_FEC_LEN);
-		// CUtils::dump("Configure D-Star + FEC", DV3000_REQ_DSTAR_FEC, DV3000_REQ_DSTAR_FEC_LEN);
-		m_ambeBlockSize = 9U;
-	} else if (m_mode == MODE_DSTAR && !m_fec) {
-		m_serial.write(DV3000_REQ_DSTAR_NOFEC, DV3000_REQ_DSTAR_NOFEC_LEN);
-		// CUtils::dump("Configure D-Star", DV3000_REQ_DSTAR_NOFEC, DV3000_REQ_DSTAR_NOFEC_LEN);
-		m_ambeBlockSize = 6U;
-	} else if (m_mode == MODE_DMR && m_fec) {
-		m_serial.write(DV3000_REQ_DMR_FEC, DV3000_REQ_DMR_FEC_LEN);
-		// CUtils::dump("Configure DMR + FEC", DV3000_REQ_DMR_FEC, DV3000_REQ_DMR_FEC_LEN);
-		m_ambeBlockSize = 9U;
-	} else if (m_mode == MODE_DMR && !m_fec) {
-		m_serial.write(DV3000_REQ_DMR_NOFEC, DV3000_REQ_DMR_NOFEC_LEN);
-		// CUtils::dump("Configure DMR", DV3000_REQ_DMR_NOFEC, DV3000_REQ_DMR_NOFEC_LEN);
-		m_ambeBlockSize = 7U;
-	} else if (m_mode == MODE_YSF && m_fec) {
-		m_serial.write(DV3000_REQ_YSF_FEC, DV3000_REQ_YSF_FEC_LEN);
-		// CUtils::dump("Configure YSF + FEC", DV3000_REQ_YSF_FEC, DV3000_REQ_YSF_FEC_LEN);
-		m_ambeBlockSize = 18U;
-	} else if (m_mode == MODE_YSF && !m_fec) {
-		m_serial.write(DV3000_REQ_YSF_NOFEC, DV3000_REQ_YSF_NOFEC_LEN);
-		// CUtils::dump("Configure YSF", DV3000_REQ_YSF_NOFEC, DV3000_REQ_YSF_NOFEC_LEN);
-		m_ambeBlockSize = 11U;
-	} else if (m_mode == MODE_P25 && m_fec) {
-		m_serial.write(DV3000_REQ_P25_FEC, DV3000_REQ_P25_FEC_LEN);
-		// CUtils::dump("Configure P25 + FEC", DV3000_REQ_P25_FEC, DV3000_REQ_P25_FEC_LEN);
-		m_ambeBlockSize = 18U;
-	} else if (m_mode == MODE_P25 && !m_fec) {
-		m_serial.write(DV3000_REQ_P25_NOFEC, DV3000_REQ_P25_NOFEC_LEN);
-		// CUtils::dump("Configure P25", DV3000_REQ_P25_NOFEC, DV3000_REQ_P25_NOFEC_LEN);
-		m_ambeBlockSize = 11U;
-	} else {
-		return false;
-	}
-
-	type = getResponse(buffer, BUFFER_LENGTH);
-	while (resp == RESP_NONE) {
-		CUtils::sleep(10U);
-		type = getResponse(buffer, BUFFER_LENGTH);
-	}
-
-	if (type != RESP_ERROR && type != RESP_RATET) {
-		m_serial.close();
-		return false;
-	}
+		for (unsigned int i = 0U; i < 100U && type != RESP_RATEP && type != RESP_RATET; i++) {
+			CUtils::sleep(10U);
+			type = getResponse(buffer, BUFFER_LENGTH);
+		}
+	} while (type != RESP_RATEP && type != RESP_RATET);
 
 	return true;
 }
@@ -356,13 +348,15 @@ CDV3000SerialController::RESP_TYPE CDV3000SerialController::getResponse(unsigned
 	else if (len == 0)
 		return RESP_NONE;
 
+	CUtils::dump("Read 1", buffer, 1U);
+
 	if (buffer[0U] != DV3000_START_BYTE)
 		return RESP_NONE;
 
 	unsigned int offset = 1U;
 
 	while (offset < 3U) {
-		int len = m_serial.read(buffer + offset, 3U - offset);
+		len = m_serial.read(buffer + offset, 3U - offset);
 		if (len < 0)
 			return RESP_ERROR;
 		else if (len == 0)
@@ -370,11 +364,13 @@ CDV3000SerialController::RESP_TYPE CDV3000SerialController::getResponse(unsigned
 		else
 			offset += len;
 	}
+
+	CUtils::dump("Read 2", buffer, 3U);
 
 	unsigned int respLen = (buffer[1U] & 0x0FU) * 256U + buffer[2U] + DV3000_HEADER_LEN;
 
 	while (offset < respLen) {
-		int len = m_serial.read(buffer + offset, respLen - offset);
+		len = m_serial.read(buffer + offset, respLen - offset);
 		if (len < 0)
 			return RESP_ERROR;
 		else if (len == 0)
@@ -382,6 +378,8 @@ CDV3000SerialController::RESP_TYPE CDV3000SerialController::getResponse(unsigned
 		else
 			offset += len;
 	}
+
+	CUtils::dump("Read 3", buffer, respLen);
 
 	if (buffer[3U] == DV3000_TYPE_AUDIO) {
 		return RESP_AUDIO;

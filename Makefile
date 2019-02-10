@@ -17,7 +17,7 @@ Common/Common.a: force
 clean:
 	$(MAKE) -C Common clean
 	$(MAKE) -C AMBE2WAV clean
-	$(MAKE) -C WAC2AMBE clean
+	$(MAKE) -C WAV2AMBE clean
 
 .PHONY: force
 force:
