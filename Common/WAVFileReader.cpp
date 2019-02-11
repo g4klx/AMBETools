@@ -155,12 +155,13 @@ unsigned int CWAVFileReader::read(float* data, unsigned int length)
 	if (length == 0U)
 		return 0U;
 
+	unsigned int elements = length * m_channels;
 	LONG n = 0L;
 	LONG i;
 
 	switch (m_format) {
 		case FORMAT_8BIT:
-			n = ::mmioRead(m_handle, (char *)m_buffer8, length * m_channels * sizeof(uint8_t));
+			n = ::mmioRead(m_handle, (char *)m_buffer8, elements * sizeof(uint8_t));
 
 			if (n <= 0L)
 				return 0U;
@@ -170,11 +171,10 @@ unsigned int CWAVFileReader::read(float* data, unsigned int length)
 			for (i = 0L; i < n; i++)
 				data[i] = (float(m_buffer8[i]) - 127.0F) / 128.0F;
 
-			n /= m_channels;
 			break;
 
 		case FORMAT_16BIT:
-			n = ::mmioRead(m_handle, (char *)m_buffer16, length * m_channels * sizeof(int16_t));
+			n = ::mmioRead(m_handle, (char *)m_buffer16, elements * sizeof(int16_t));
 
 			if (n <= 0L)
 				return 0U;
@@ -184,34 +184,23 @@ unsigned int CWAVFileReader::read(float* data, unsigned int length)
 			for (i = 0L; i < n; i++)
 				data[i] = float(m_buffer16[i]) / 32768.0F;
 
-			n /= m_channels;
 			break;
 
 		case FORMAT_32BIT:
-			n = ::mmioRead(m_handle, (char *)m_buffer32, length * m_channels * sizeof(float));
+			n = ::mmioRead(m_handle, (char *)m_buffer32, elements * sizeof(float));
 
 			if (n <= 0L)
 				return 0U;
 
-			n /= (sizeof(float) * m_channels);
+			n /= sizeof(float);
 
-			switch (m_channels) {
-				case 1U:
-					for (i = 0L; i < n; i++)
-						data[i] = m_buffer32[i];
-					break;
-				case 2U:
-					// Swap I and Q for SDR-1000 data
-					for (i = 0L; i < n; i++) {
-						data[i * 2U + 0U] = m_buffer32[i * 2U + 1U];
-						data[i * 2U + 1U] = m_buffer32[i * 2U + 0U];
-					}
-					break;
-			}
+			for (i = 0L; i < n; i++)
+				data[i] = m_buffer32[i];
+
 			break;
 	}
 
-	return n;
+	return n / m_channels;
 }
 
 void CWAVFileReader::rewind()

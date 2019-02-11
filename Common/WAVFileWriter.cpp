@@ -118,63 +118,37 @@ bool CWAVFileWriter::write(const float* buffer, unsigned int length)
 	assert(buffer != NULL);
 	assert(length > 0U);
 
+	unsigned int elements = length * m_channels;
 	unsigned int i;
 	LONG bytes = 0L;
 	LONG n = 0L;
 
 	switch (m_sampleWidth) {
 		case 8U:
-			switch (m_channels) {
-				case 1U:
-					for (i = 0U; i < length; i++)
-						m_buffer8[i] = uint8_t(buffer[i] * 128.0F + 127.0F);
-					break;
-				case 2U:
-					for (i = 0U; i < (length * 2U); i++)
-						m_buffer8[i] = uint8_t(buffer[i] * 128.0F + 127.0F);
-					break;
-			}
+			for (i = 0U; i < elements; i++)
+				m_buffer8[i] = uint8_t(buffer[i] * 128.0F + 127.0F);
 
-			bytes = length * m_channels * sizeof(uint8_t);
+			bytes = elements * sizeof(uint8_t);
 
 			n = ::mmioWrite(m_handle, (char *)m_buffer8, bytes);
 
 			break;
 
 		case 16U:
-			switch (m_channels) {
-				case 1U:
-					for (i = 0U; i < length; i++)
-						m_buffer16[i] = int16_t(buffer[i] * 32768.0F);
-					break;
-				case 2U:
-					for (i = 0U; i < (length * 2U); i++)
-						m_buffer16[i] = int16_t(buffer[i] * 32768.0F);
-					break;
-			}
+			for (i = 0U; i < elements; i++)
+				m_buffer16[i] = int16_t(buffer[i] * 32768.0F);
 
-			bytes = length * m_channels * sizeof(int16_t);
+			bytes = elements * sizeof(int16_t);
 
 			n = ::mmioWrite(m_handle, (char *)m_buffer16, bytes);
 
 			break;
 
 		case 32U:
-			switch (m_channels) {
-				case 1U:
-					for (i = 0U; i < length; i++)
-						m_buffer32[i] = float(buffer[i]);
-					break;
-				case 2U:
-					// Swap I and Q
-					for (i = 0U; i < length; i++) {
-						m_buffer32[i * 2U + 0U] = float(buffer[i * 2U + 1U]);
-						m_buffer32[i * 2U + 1U] = float(buffer[i * 2U + 0U]);
-					}
-					break;
-			}
+			for (i = 0U; i < elements; i++)
+				m_buffer32[i] = float(buffer[i]);
 
-			bytes = length * m_channels * sizeof(float);
+			bytes = elements * sizeof(float);
 
 			n = ::mmioWrite(m_handle, (char *)m_buffer32, bytes);
 
@@ -319,7 +293,7 @@ bool CWAVFileWriter::write(const float* buffer, unsigned int length)
 
 	m_length += n;
 
-	return n == bytes;
+	return n == elements;
 }
 
 void CWAVFileWriter::close()
