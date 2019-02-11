@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2002-2004,2006-2009,2017 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2002-2004,2006-2009,2017,2019 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -287,64 +287,32 @@ bool CWAVFileWriter::write(const float* buffer, unsigned int length)
 	assert(buffer != NULL);
 	assert(length > 0U && length <= m_blockSize);
 
-	unsigned int bytes = 0U;
+	unsigned int elements = length * m_channels;
 	unsigned int i;
 	size_t n = 0UL;
 
 	switch (m_sampleWidth) {
 		case 8U:
-			switch (m_channels) {
-				case 1U:
-					for (i = 0U; i < length; i++)
-						m_buffer8[i] = uint8_t(buffer[i] * 128.0F + 127.0F);
-					break;
-				case 2U:
-					for (i = 0U; i < (length * 2U); i++)
-						m_buffer8[i] = uint8_t(buffer[i] * 128.0F + 127.0F);
-					break;
-			}
+			for (i = 0U; i < elements; i++)
+				m_buffer8[i] = uint8_t(buffer[i] * 128.0F + 127.0F);
 
-			bytes = length * m_channels;
-
-			n = ::fwrite(m_buffer8, sizeof(uint8_t), bytes, m_file);
+			n = ::fwrite(m_buffer8, sizeof(uint8_t), elements, m_file);
 
 			break;
 
 		case 16U:
-			switch (m_channels) {
-				case 1U:
-					for (i = 0U; i < length; i++)
-						m_buffer16[i] = int16_t(buffer[i] * 32768.0F);
-					break;
-				case 2U:
-					for (i = 0U; i < (length * 2U); i++)
-						m_buffer16[i] = int16_t(buffer[i] * 32768.0F);
-					break;
-			}
+			for (i = 0U; i < elements; i++)
+				m_buffer16[i] = int16_t(buffer[i] * 32768.0F);
 
-			bytes = length * m_channels;
-
-			n = ::fwrite(m_buffer16, sizeof(uint16_t), bytes, m_file);
+			n = ::fwrite(m_buffer16, sizeof(uint16_t), elements, m_file);
 
 			break;
 
 		case 32U:
-			switch (m_channels) {
-				case 1U:
-					for (i = 0U; i < length; i++)
-						m_buffer32[i] = float(buffer[i]);
-					break;
-				case 2U:
-					for (i = 0U; i < length; i++) {
-						m_buffer32[i * 2U + 0U] = float(buffer[i * 2U + 0U]);
-						m_buffer32[i * 2U + 1U] = float(buffer[i * 2U + 1U]);
-					}
-					break;
-			}
+			for (i = 0U; i < elements; i++)
+				m_buffer32[i] = float(buffer[i]);
 
-			bytes = length * m_channels;
-
-			n = ::fwrite(m_buffer32, sizeof(float), bytes, m_file);
+			n = ::fwrite(m_buffer32, sizeof(float), elements, m_file);
 
 			break;
 	}
