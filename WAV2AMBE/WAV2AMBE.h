@@ -1,5 +1,5 @@
 /*
-*   Copyright (C) 2017 by Jonathan Naylor G4KLX
+*   Copyright (C) 2017,2019 by Jonathan Naylor G4KLX
 *
 *   This program is free software; you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 class CWAV2AMBE
 {
 public:
-	CWAV2AMBE(const std::string& sugnature, AMBE_MODE mode, bool fec, const std::string& port, unsigned int speed, float amplitude, bool reset, const std::string& input, const std::string& output);
+	CWAV2AMBE(const std::string& sugnature, AMBE_MODE mode, bool fec, const std::string& port, unsigned int speed, float amplitude, bool reset, bool debug, const std::string& input, const std::string& output);
 	~CWAV2AMBE();
 
 	int run();
@@ -39,6 +39,7 @@ private:
 	unsigned int m_speed;
 	float        m_amplitude;
 	bool         m_reset;
+	bool         m_debug;
 	std::string  m_input;
 	std::string  m_output;
 };

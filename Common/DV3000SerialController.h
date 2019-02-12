@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2014,2015,2017 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2014,2015,2017,2019 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -40,8 +40,8 @@ const unsigned int AUDIO_BLOCK_SIZE = AUDIO_SAMPLE_RATE / 50U;
 
 class CDV3000SerialController {
 public:
-	CDV3000SerialController(const std::string& device, unsigned int speed, AMBE_MODE mode, bool fec, float amplitude, bool reset, CAMBEFileReader* reader, CWAVFileWriter* writer);
-	CDV3000SerialController(const std::string& device, unsigned int speed, AMBE_MODE mode, bool fec, float amplitude, bool reset, CWAVFileReader* reader, CAMBEFileWriter* writer);
+	CDV3000SerialController(const std::string& device, unsigned int speed, AMBE_MODE mode, bool fec, float amplitude, bool reset, bool debug, CAMBEFileReader* reader, CWAVFileWriter* writer);
+	CDV3000SerialController(const std::string& device, unsigned int speed, AMBE_MODE mode, bool fec, float amplitude, bool reset, bool debug, CWAVFileReader* reader, CAMBEFileWriter* writer);
 	~CDV3000SerialController();
 
 	bool open();
@@ -61,6 +61,7 @@ private:
 	bool              m_fec;
 	float             m_amplitude;
 	bool              m_reset;
+	bool              m_debug;
 	AMBE_DIRECTION    m_direction;
 	CWAVFileReader*   m_wavReader;
 	CWAVFileWriter*   m_wavWriter;

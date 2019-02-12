@@ -73,12 +73,16 @@ int main(int argc, char** argv)
 	std::string port = "/dev/ttyUSB0";
 	unsigned int speed = 460800U;
 	bool reset = false;
+	bool debug = false;
 
 	int c;
-	while ((c = ::getopt(argc, argv, "a:f:g:m:p:rs:")) != -1) {
+	while ((c = ::getopt(argc, argv, "a:df:g:m:p:rs:")) != -1) {
 		switch (c) {
 		case 'a':
 			amplitude = float(::atof(optarg));
+			break;
+		case 'd':
+			debug = true;
 			break;
 		case 'f':
 			fec = ::atoi(optarg) != 0;
@@ -110,13 +114,13 @@ int main(int argc, char** argv)
 		case '?':
 			break;
 		default:
-			fprintf(stderr, "Usage: AMBE2WAV [-a amplitude] [-g <signature>] [-m dstar|dmr|ysf|p25] [-f 0|1] [-p <port>] [-s <speed>] [-r] <input> <output>\n");
+			fprintf(stderr, "Usage: AMBE2WAV [-a amplitude] [-g <signature>] [-m dstar|dmr|ysf|p25] [-f 0|1] [-p <port>] [-s <speed>] [-r] [-d] <input> <output>\n");
 			break;
 		}
 	}
 
 	if (optind > (argc - 2)) {
-		fprintf(stderr, "Usage: AMBE2WAV [-a amplitude] [-g <signature>] [-m dstar|dmr|ysf|p25] [-f 0|1] [-p <port>] [-s <speed>] [-r] <input> <output>\n");
+		fprintf(stderr, "Usage: AMBE2WAV [-a amplitude] [-g <signature>] [-m dstar|dmr|ysf|p25] [-f 0|1] [-p <port>] [-s <speed>] [-r] [-d] <input> <output>\n");
 		return 1;
 	}
 
@@ -125,7 +129,7 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	CAMBE2WAV* ambe2wav = new CAMBE2WAV(signature, mode, fec, port, speed, amplitude, reset, std::string(argv[argc - 2]), std::string(argv[argc - 1]));
+	CAMBE2WAV* ambe2wav = new CAMBE2WAV(signature, mode, fec, port, speed, amplitude, reset, debug, std::string(argv[argc - 2]), std::string(argv[argc - 1]));
 
 	int ret = ambe2wav->run();
 
@@ -134,7 +138,7 @@ int main(int argc, char** argv)
     return ret;
 }
 
-CAMBE2WAV::CAMBE2WAV(const std::string& signature, AMBE_MODE mode, bool fec, const std::string& port, unsigned int speed, float amplitude, bool reset, const std::string& input, const std::string& output) :
+CAMBE2WAV::CAMBE2WAV(const std::string& signature, AMBE_MODE mode, bool fec, const std::string& port, unsigned int speed, float amplitude, bool reset, bool debug, const std::string& input, const std::string& output) :
 m_signature(signature),
 m_mode(mode),
 m_fec(fec),
@@ -142,6 +146,7 @@ m_port(port),
 m_speed(speed),
 m_amplitude(amplitude),
 m_reset(reset),
+m_debug(debug),
 m_input(input),
 m_output(output)
 {
@@ -198,7 +203,7 @@ int CAMBE2WAV::run()
 		}
 	} else {
 #endif
-		CDV3000SerialController controller(m_port, m_speed, m_mode, m_fec, m_amplitude, m_reset, &reader, &writer);
+		CDV3000SerialController controller(m_port, m_speed, m_mode, m_fec, m_amplitude, m_reset, m_debug, &reader, &writer);
 		ret = controller.open();
 		if (!ret) {
 			writer.close();

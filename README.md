@@ -1,13 +1,13 @@
-These programs are designed to access a DV3000 connected to a serial port or a
+These programs are designed to access an AMBE3000 vocoder connected to a serial port or a
 USB port and to allow for the encoding and decoding of WAV files to and from
 different AMBE formats.
 
 There are two programs, AMBE2WAV and WAV2AMBE and their purposes are obvious from
 their names. The usage of them is:
 
-ambe2wav [-a amplitude] [-g <signature>] [-m dstar|dmr|ysf|p25] [-f 0|1] [-p <port>] [-s <speed>] [-r] <input> <output>
+ambe2wav [-a amplitude] [-g <signature>] [-m dstar|dmr|ysf|p25] [-f 0|1] [-p <port>] [-s <speed>] [-r] [-d] <input> <output>
 
-wav2ambe [-a amplitude] [-g <signature>] [-m dstar|dmr|ysf|p25] [-f 0|1] [-p <port>] [-s <speed>] [-r] <input> <output>
+wav2ambe [-a amplitude] [-g <signature>] [-m dstar|dmr|ysf|p25] [-f 0|1] [-p <port>] [-s <speed>] [-r] [-d] <input> <output>
 
 where
 
@@ -25,4 +25,4 @@ where
 
 [-r] issue a reset at startup
 
-This is work in progress.
+[-d] print debugging information

@@ -97,12 +97,13 @@ const unsigned int DV3000_HEADER_LEN = 4U;
 
 const unsigned int BUFFER_LENGTH = 400U;
 
-CDV3000SerialController::CDV3000SerialController(const std::string& device, unsigned int speed, AMBE_MODE mode, bool fec, float amplitude, bool reset, CWAVFileReader* reader, CAMBEFileWriter* writer) :
+CDV3000SerialController::CDV3000SerialController(const std::string& device, unsigned int speed, AMBE_MODE mode, bool fec, float amplitude, bool reset, bool debug, CWAVFileReader* reader, CAMBEFileWriter* writer) :
 m_serial(device, SERIAL_SPEED(speed)),
 m_mode(mode),
 m_fec(fec),
 m_amplitude(amplitude),
 m_reset(reset),
+m_debug(debug),
 m_direction(AMBE_ENCODING),
 m_wavReader(reader),
 m_wavWriter(NULL),
@@ -116,12 +117,13 @@ m_outCount(0U)
 	assert(writer != NULL);
 }
 
-CDV3000SerialController::CDV3000SerialController(const std::string& device, unsigned int speed, AMBE_MODE mode, bool fec, float amplitude, bool reset, CAMBEFileReader* reader, CWAVFileWriter* writer) :
+CDV3000SerialController::CDV3000SerialController(const std::string& device, unsigned int speed, AMBE_MODE mode, bool fec, float amplitude, bool reset, bool debug, CAMBEFileReader* reader, CWAVFileWriter* writer) :
 m_serial(device, SERIAL_SPEED(speed)),
 m_mode(mode),
 m_fec(fec),
 m_amplitude(amplitude),
 m_reset(reset),
+m_debug(debug),
 m_direction(AMBE_DECODING),
 m_wavReader(NULL),
 m_wavWriter(writer),
@@ -152,6 +154,8 @@ bool CDV3000SerialController::open()
 	if (m_reset) {
 		do {
 			m_serial.write(DV3000_REQ_RESET, DV3000_REQ_RESET_LEN);
+			if (m_debug)
+				CUtils::dump("Reset", DV3000_REQ_RESET, DV3000_REQ_RESET_LEN);
 
 			type = getResponse(buffer, BUFFER_LENGTH);
 			for (unsigned int i = 0U; i < 100U && type != RESP_READY; i++) {
@@ -163,6 +167,8 @@ bool CDV3000SerialController::open()
 
 	do {
 		m_serial.write(DV3000_REQ_PRODID, DV3000_REQ_PRODID_LEN);
+		if (m_debug)
+			CUtils::dump("Product Id", DV3000_REQ_PRODID, DV3000_REQ_PRODID_LEN);
 
 		type = getResponse(buffer, BUFFER_LENGTH);
 		for (unsigned int i = 0U; i < 100U && type != RESP_NAME; i++) {
@@ -176,35 +182,43 @@ bool CDV3000SerialController::open()
 	do {
 		if (m_mode == MODE_DSTAR && m_fec) {
 			m_serial.write(DV3000_REQ_DSTAR_FEC, DV3000_REQ_DSTAR_FEC_LEN);
-			// CUtils::dump("Configure D-Star + FEC", DV3000_REQ_DSTAR_FEC, DV3000_REQ_DSTAR_FEC_LEN);
+			if (m_debug)
+				CUtils::dump("Configure D-Star + FEC", DV3000_REQ_DSTAR_FEC, DV3000_REQ_DSTAR_FEC_LEN);
 			m_ambeBlockSize = 9U;
 		} else if (m_mode == MODE_DSTAR && !m_fec) {
 			m_serial.write(DV3000_REQ_DSTAR_NOFEC, DV3000_REQ_DSTAR_NOFEC_LEN);
-			// CUtils::dump("Configure D-Star", DV3000_REQ_DSTAR_NOFEC, DV3000_REQ_DSTAR_NOFEC_LEN);
+			if (m_debug)
+				CUtils::dump("Configure D-Star", DV3000_REQ_DSTAR_NOFEC, DV3000_REQ_DSTAR_NOFEC_LEN);
 			m_ambeBlockSize = 6U;
 		} else if (m_mode == MODE_DMR && m_fec) {
 			m_serial.write(DV3000_REQ_DMR_FEC, DV3000_REQ_DMR_FEC_LEN);
-			// CUtils::dump("Configure DMR + FEC", DV3000_REQ_DMR_FEC, DV3000_REQ_DMR_FEC_LEN);
+			if (m_debug)
+				CUtils::dump("Configure DMR + FEC", DV3000_REQ_DMR_FEC, DV3000_REQ_DMR_FEC_LEN);
 			m_ambeBlockSize = 9U;
 		} else if (m_mode == MODE_DMR && !m_fec) {
 			m_serial.write(DV3000_REQ_DMR_NOFEC, DV3000_REQ_DMR_NOFEC_LEN);
-			// CUtils::dump("Configure DMR", DV3000_REQ_DMR_NOFEC, DV3000_REQ_DMR_NOFEC_LEN);
+			if (m_debug)
+				CUtils::dump("Configure DMR", DV3000_REQ_DMR_NOFEC, DV3000_REQ_DMR_NOFEC_LEN);
 			m_ambeBlockSize = 7U;
 		} else if (m_mode == MODE_YSF && m_fec) {
 			m_serial.write(DV3000_REQ_YSF_FEC, DV3000_REQ_YSF_FEC_LEN);
-			// CUtils::dump("Configure YSF + FEC", DV3000_REQ_YSF_FEC, DV3000_REQ_YSF_FEC_LEN);
+			if (m_debug)
+				CUtils::dump("Configure YSF + FEC", DV3000_REQ_YSF_FEC, DV3000_REQ_YSF_FEC_LEN);
 			m_ambeBlockSize = 18U;
 		} else if (m_mode == MODE_YSF && !m_fec) {
 			m_serial.write(DV3000_REQ_YSF_NOFEC, DV3000_REQ_YSF_NOFEC_LEN);
-			// CUtils::dump("Configure YSF", DV3000_REQ_YSF_NOFEC, DV3000_REQ_YSF_NOFEC_LEN);
+			if (m_debug)
+				CUtils::dump("Configure YSF", DV3000_REQ_YSF_NOFEC, DV3000_REQ_YSF_NOFEC_LEN);
 			m_ambeBlockSize = 11U;
 		} else if (m_mode == MODE_P25 && m_fec) {
 			m_serial.write(DV3000_REQ_P25_FEC, DV3000_REQ_P25_FEC_LEN);
-			// CUtils::dump("Configure P25 + FEC", DV3000_REQ_P25_FEC, DV3000_REQ_P25_FEC_LEN);
+			if (m_debug)
+				CUtils::dump("Configure P25 + FEC", DV3000_REQ_P25_FEC, DV3000_REQ_P25_FEC_LEN);
 			m_ambeBlockSize = 18U;
 		} else if (m_mode == MODE_P25 && !m_fec) {
 			m_serial.write(DV3000_REQ_P25_NOFEC, DV3000_REQ_P25_NOFEC_LEN);
-			// CUtils::dump("Configure P25", DV3000_REQ_P25_NOFEC, DV3000_REQ_P25_NOFEC_LEN);
+			if (m_debug)
+				CUtils::dump("Configure P25", DV3000_REQ_P25_NOFEC, DV3000_REQ_P25_NOFEC_LEN);
 			m_ambeBlockSize = 11U;
 		} else {
 			return false;
@@ -285,7 +299,9 @@ void CDV3000SerialController::encodeIn(const float* audio, unsigned int length)
 	}
 
 	m_serial.write(buffer, DV3000_AUDIO_HEADER_LEN + AUDIO_BLOCK_SIZE * 2U);
-	// CUtils::dump("encodeIn", buffer, DV3000_AUDIO_HEADER_LEN + AUDIO_BLOCK_SIZE * 2U);
+
+	if (m_debug)
+		CUtils::dump("encodeIn", buffer, DV3000_AUDIO_HEADER_LEN + AUDIO_BLOCK_SIZE * 2U);
 }
 
 bool CDV3000SerialController::encodeOut(unsigned char* ambe, unsigned int length)
@@ -297,9 +313,10 @@ bool CDV3000SerialController::encodeOut(unsigned char* ambe, unsigned int length
 	if (type != RESP_AMBE)
 		return false;
 
-	// CUtils::dump("encodeOut", buffer, m_ambeBlockSize + DV3000_AMBE_HEADER_LEN);
-
 	::memcpy(ambe, buffer + DV3000_AMBE_HEADER_LEN, m_ambeBlockSize);
+
+	if (m_debug)
+		CUtils::dump("encodeOut", ambe, m_ambeBlockSize);
 
 	return true;
 }
@@ -314,7 +331,9 @@ void CDV3000SerialController::decodeIn(const unsigned char* ambe, unsigned int l
 	::memcpy(buffer + DV3000_AMBE_HEADER_LEN, ambe, m_ambeBlockSize);
 
 	m_serial.write(buffer, DV3000_AMBE_HEADER_LEN + m_ambeBlockSize);
-	// CUtils::dump("decodeIn", buffer, DV3000_AMBE_HEADER_LEN + m_ambeBlockSize);
+
+	if (m_debug)
+		CUtils::dump("decodeIn", buffer, DV3000_AMBE_HEADER_LEN + m_ambeBlockSize);
 }
 
 bool CDV3000SerialController::decodeOut(float* audio, unsigned int length)
@@ -326,14 +345,15 @@ bool CDV3000SerialController::decodeOut(float* audio, unsigned int length)
 	if (type != RESP_AUDIO)
 		return false;
 
-	// CUtils::dump("decodeOut", buffer, DV3000_AUDIO_HEADER_LEN + AUDIO_BLOCK_SIZE * 2U);
-
 	uint8_t* q = (uint8_t*)(buffer + DV3000_AUDIO_HEADER_LEN);
 	for (unsigned int i = 0U; i < AUDIO_BLOCK_SIZE; i++, q += 2U) {
 		int16_t word = (q[0] << 8) | (q[1U] << 0);
 
 		audio[i] = float(word) * m_amplitude / 32768.0F;
 	}
+
+	if (m_debug)
+		CUtils::dump("decodeOut", audio, AUDIO_BLOCK_SIZE * sizeof(float));
 
 	return true;
 }
@@ -380,6 +400,9 @@ CDV3000SerialController::RESP_TYPE CDV3000SerialController::getResponse(unsigned
 		else
 			offset += len;
 	}
+
+	if (m_debug)
+		CUtils::dump("Received", buffer, respLen);
 
 	if (buffer[3U] == DV3000_TYPE_AUDIO) {
 		return RESP_AUDIO;
