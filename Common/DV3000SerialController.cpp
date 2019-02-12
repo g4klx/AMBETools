@@ -326,7 +326,7 @@ bool CDV3000SerialController::decodeOut(float* audio, unsigned int length)
 	if (type != RESP_AUDIO)
 		return false;
 
-	// CUtils::dump("decodeOut", buffer, 30U);
+	// CUtils::dump("decodeOut", buffer, DV3000_AUDIO_HEADER_LEN + AUDIO_BLOCK_SIZE * 2U);
 
 	uint8_t* q = (uint8_t*)(buffer + DV3000_AUDIO_HEADER_LEN);
 	for (unsigned int i = 0U; i < AUDIO_BLOCK_SIZE; i++, q += 2U) {
