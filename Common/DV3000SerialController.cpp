@@ -90,7 +90,7 @@ const unsigned int DV3000_REQ_P25_NOFEC_LEN = 17U;
 const unsigned char DV3000_AUDIO_HEADER[]   = {DV3000_START_BYTE, 0x01U, 0x42U, DV3000_TYPE_AUDIO, 0x00U, 0xA0U};
 const unsigned char DV3000_AUDIO_HEADER_LEN = 6U;
 
-const unsigned char DV3000_AMBE_HEADER[]    = {DV3000_START_BYTE, 0x00U, 0x0BU, DV3000_TYPE_AMBE, 0x01U, 0x48U};
+const unsigned char DV3000_AMBE_HEADER[]    = {DV3000_START_BYTE, 0x00U, 0x00U, DV3000_TYPE_AMBE, 0x01U, 0x00U };
 const unsigned char DV3000_AMBE_HEADER_LEN  = 6U;
 
 const unsigned int DV3000_HEADER_LEN = 4U;
@@ -177,7 +177,7 @@ bool CDV3000SerialController::open()
 		}
 	} while (type != RESP_NAME);
 
-	::fprintf(stdout, "DV3000 chip identified as: %s\n", buffer + 5U);
+	::fprintf(stdout, "DVSI AMBE chip identified as: %s\n", buffer + 5U);
 
 	do {
 		if (m_mode == MODE_DSTAR && m_fec) {
@@ -328,6 +328,9 @@ void CDV3000SerialController::decodeIn(const unsigned char* ambe, unsigned int l
 	unsigned char buffer[DV3000_AMBE_HEADER_LEN + 25U];
 	::memcpy(buffer, DV3000_AMBE_HEADER, DV3000_AMBE_HEADER_LEN);
 
+	buffer[2U] = m_ambeBlockSize + 2U;
+	buffer[5U] = m_ambeBlockSize * 8U;
+
 	::memcpy(buffer + DV3000_AMBE_HEADER_LEN, ambe, m_ambeBlockSize);
 
 	m_serial.write(buffer, DV3000_AMBE_HEADER_LEN + m_ambeBlockSize);
@@ -353,7 +356,7 @@ bool CDV3000SerialController::decodeOut(float* audio, unsigned int length)
 	}
 
 	if (m_debug)
-		CUtils::dump("decodeOut", audio, AUDIO_BLOCK_SIZE * sizeof(float));
+		CUtils::dump("decodeOut", (unsigned char*)audio, AUDIO_BLOCK_SIZE * sizeof(float));
 
 	return true;
 }

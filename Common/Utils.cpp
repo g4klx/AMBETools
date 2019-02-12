@@ -1,5 +1,5 @@
 /*
-*   Copyright (C) 2009,2014,2017 by Jonathan Naylor G4KLX
+*   Copyright (C) 2009,2014,2017,2019 by Jonathan Naylor G4KLX
 *
 *   This program is free software; you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ void CUtils::dump(const char* title, const unsigned char* data, unsigned int len
 	assert(title != NULL);
 	assert(data != NULL);
 
-	::fprintf(stderr, "%s\n", title);
+	::fprintf(stdout, "%s\n", title);
 
 	unsigned int offset = 0U;
 
@@ -59,7 +59,7 @@ void CUtils::dump(const char* title, const unsigned char* data, unsigned int len
 
 		output += '*';
 
-		::fprintf(stderr, "%04X:  %s\n", offset, output.c_str());
+		::fprintf(stdout, "%04X:  %s\n", offset, output.c_str());
 
 		offset += 16U;
 
