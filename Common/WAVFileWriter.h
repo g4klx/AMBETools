@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2002-2004,2006-2010,2017 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2002-2004,2006-2010,2017,2019 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -45,7 +45,6 @@ private:
 	unsigned int   m_blockSize;
 	uint8_t*       m_buffer8;
 	int16_t*       m_buffer16;
-	float*         m_buffer32;
 #if defined(_WIN32) || defined(_WIN64)
 	HMMIO          m_handle;
 	MMCKINFO       m_parent;

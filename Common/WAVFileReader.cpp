@@ -33,7 +33,6 @@ m_channels(0U),
 m_sampleRate(0U),
 m_buffer8(NULL),
 m_buffer16(NULL),
-m_buffer32(NULL),
 m_handle(NULL),
 m_parent(),
 m_child(),
@@ -43,14 +42,12 @@ m_offset(0L)
 
 	m_buffer8  = new uint8_t[blockSize * 4U];
 	m_buffer16 = new int16_t[blockSize * 4U];
-	m_buffer32 = new float[blockSize * 4U];
 }
 
 CWAVFileReader::~CWAVFileReader()
 {
 	delete[] m_buffer8;
 	delete[] m_buffer16;
-	delete[] m_buffer32;
 }
 
 bool CWAVFileReader::open()
@@ -187,15 +184,12 @@ unsigned int CWAVFileReader::read(float* data, unsigned int length)
 			break;
 
 		case FORMAT_32BIT:
-			n = ::mmioRead(m_handle, (char *)m_buffer32, elements * sizeof(float));
+			n = ::mmioRead(m_handle, (char *)data, elements * sizeof(float));
 
 			if (n <= 0L)
 				return 0U;
 
 			n /= sizeof(float);
-
-			for (i = 0L; i < n; i++)
-				data[i] = m_buffer32[i];
 
 			break;
 	}
@@ -242,7 +236,6 @@ m_channels(0U),
 m_sampleRate(0U),
 m_buffer8(NULL),
 m_buffer16(NULL),
-m_buffer32(NULL),
 m_file(NULL),
 m_offset(0),
 m_length(0U)
@@ -251,14 +244,12 @@ m_length(0U)
 
 	m_buffer8  = new uint8_t[blockSize * 4U];
 	m_buffer16 = new int16_t[blockSize * 4U];
-	m_buffer32 = new float[blockSize * 4U];
 }
 
 CWAVFileReader::~CWAVFileReader()
 {
 	delete[] m_buffer8;
 	delete[] m_buffer16;
-	delete[] m_buffer32;
 }
 
 bool CWAVFileReader::open()
@@ -438,13 +429,10 @@ unsigned int CWAVFileReader::read(float* data, unsigned int length)
 			break;
 
 		case FORMAT_32BIT:
-			n = ::fread(m_buffer32, sizeof(float), elements, m_file);
+			n = ::fread(data, sizeof(float), elements, m_file);
 
 			if (n == 0U)
 				return 0U;
-
-			for (i = 0U; i < n; i++)
-				data[i] = m_buffer32[i];
 
 			break;
 	}

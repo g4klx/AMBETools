@@ -32,7 +32,6 @@ m_sampleWidth(sampleWidth),
 m_blockSize(blockSize),
 m_buffer8(NULL),
 m_buffer16(NULL),
-m_buffer32(NULL),
 m_handle(NULL),
 m_parent(),
 m_child()
@@ -44,14 +43,12 @@ m_child()
 
 	m_buffer8  = new uint8_t[blockSize * channels];
 	m_buffer16 = new int16_t[blockSize * channels];
-	m_buffer32 = new float[blockSize * channels];
 }
 
 CWAVFileWriter::~CWAVFileWriter()
 {
 	delete[] m_buffer8;
 	delete[] m_buffer16;
-	delete[] m_buffer32;
 }
 
 bool CWAVFileWriter::open()
@@ -145,12 +142,9 @@ bool CWAVFileWriter::write(const float* buffer, unsigned int length)
 			break;
 
 		case 32U:
-			for (i = 0U; i < elements; i++)
-				m_buffer32[i] = float(buffer[i]);
-
 			bytes = elements * sizeof(float);
 
-			n = ::mmioWrite(m_handle, (char *)m_buffer32, bytes);
+			n = ::mmioWrite(m_handle, (char *)buffer, bytes);
 
 			break;
 	}
@@ -179,7 +173,6 @@ m_sampleWidth(sampleWidth),
 m_blockSize(blockSize),
 m_buffer8(NULL),
 m_buffer16(NULL),
-m_buffer32(NULL),
 m_file(NULL),
 m_offset1(0),
 m_offset2(0),
@@ -192,14 +185,12 @@ m_length(0U)
 
 	m_buffer8  = new uint8_t[channels * blockSize];
 	m_buffer16 = new int16_t[channels * blockSize];
-	m_buffer32 = new float[channels * blockSize];
 }
 
 CWAVFileWriter::~CWAVFileWriter()
 {
 	delete[] m_buffer8;
 	delete[] m_buffer16;
-	delete[] m_buffer32;
 }
 
 bool CWAVFileWriter::open()
@@ -283,10 +274,7 @@ bool CWAVFileWriter::write(const float* buffer, unsigned int length)
 			break;
 
 		case 32U:
-			for (i = 0U; i < elements; i++)
-				m_buffer32[i] = float(buffer[i]);
-
-			n = ::fwrite(m_buffer32, sizeof(float), elements, m_file);
+			n = ::fwrite(buffer, sizeof(float), elements, m_file);
 
 			break;
 	}
