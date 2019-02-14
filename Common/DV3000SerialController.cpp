@@ -109,9 +109,7 @@ m_wavReader(reader),
 m_wavWriter(NULL),
 m_ambeReader(NULL),
 m_ambeWriter(writer),
-m_ambeBlockSize(0U),
-m_inCount(0U),
-m_outCount(0U)
+m_ambeBlockSize(0U)
 {
 	assert(reader != NULL);
 	assert(writer != NULL);
@@ -129,9 +127,7 @@ m_wavReader(NULL),
 m_wavWriter(writer),
 m_ambeReader(reader),
 m_ambeWriter(NULL),
-m_ambeBlockSize(0U),
-m_inCount(0U),
-m_outCount(0U)
+m_ambeBlockSize(0U)
 {
 	assert(reader != NULL);
 	assert(writer != NULL);
@@ -236,39 +232,50 @@ bool CDV3000SerialController::open()
 
 void CDV3000SerialController::process()
 {
+	unsigned int inCount  = 0U;
+	unsigned int outCount = 0U;
+	unsigned int endCount = 0U;
+
+	unsigned char* ambe = new unsigned char[m_ambeBlockSize];
+
 	if (m_direction == AMBE_ENCODING) {
 		assert(m_wavReader != NULL);
 		assert(m_ambeWriter != NULL);
 
 		do {
-			unsigned int outstanding = m_inCount - m_outCount;
-			if (outstanding < 4U) {
-				float audio[AUDIO_BLOCK_SIZE];
-				if (m_wavReader->read(audio, AUDIO_BLOCK_SIZE) == AUDIO_BLOCK_SIZE) {
-					encodeIn(audio, AUDIO_BLOCK_SIZE);
-					m_inCount++;
+			if (inCount >= outCount) {
+				unsigned int outstanding = inCount - outCount;
+				if (outstanding < 4U) {
+					float audio[AUDIO_BLOCK_SIZE];
+					if (m_wavReader->read(audio, AUDIO_BLOCK_SIZE) == AUDIO_BLOCK_SIZE) {
+						encodeIn(audio, AUDIO_BLOCK_SIZE);
+						inCount++;
+					}
 				}
 			}
 
 			CUtils::sleep(10U);
 
-			unsigned char ambe[25U];
 			if (encodeOut(ambe, m_ambeBlockSize)) {
 				m_ambeWriter->write(ambe, m_ambeBlockSize);
-				m_outCount++;
+				endCount = 0U;
+				outCount++;
+			} else {
+				endCount++;
 			}
-		} while (m_inCount != m_outCount);
+		} while (endCount < 10U);
 	} else {
 		assert(m_ambeReader != NULL);
 		assert(m_wavWriter != NULL);
 
 		do {
-			unsigned int outstanding = m_inCount - m_outCount;
-			if (outstanding < 4U) {
-				unsigned char ambe[25U];
-				if (m_ambeReader->read(ambe, m_ambeBlockSize) == m_ambeBlockSize) {
-					decodeIn(ambe, m_ambeBlockSize);
-					m_inCount++;
+			if (inCount >= outCount) {
+				unsigned int outstanding = inCount - outCount;
+				if (outstanding < 4U) {
+					if (m_ambeReader->read(ambe, m_ambeBlockSize) == m_ambeBlockSize) {
+						decodeIn(ambe, m_ambeBlockSize);
+						inCount++;
+					}
 				}
 			}
 
@@ -277,10 +284,15 @@ void CDV3000SerialController::process()
 			float audio[AUDIO_BLOCK_SIZE];
 			if (decodeOut(audio, AUDIO_BLOCK_SIZE)) {
 				m_wavWriter->write(audio, AUDIO_BLOCK_SIZE);
-				m_outCount++;
+				endCount = 0U;
+				outCount++;
+			} else {
+				endCount++;
 			}
-		} while (m_inCount != m_outCount);
+		} while (endCount < 10U);
 	}
+
+	delete[] ambe;
 }
 
 void CDV3000SerialController::encodeIn(const float* audio, unsigned int length)

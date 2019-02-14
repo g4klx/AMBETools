@@ -68,8 +68,6 @@ private:
 	CAMBEFileReader*  m_ambeReader;
 	CAMBEFileWriter*  m_ambeWriter;
 	unsigned int      m_ambeBlockSize;
-	unsigned int      m_inCount;
-	unsigned int      m_outCount;
 
 	enum RESP_TYPE {
 		RESP_NONE,
