@@ -234,7 +234,6 @@ void CDV3000SerialController::process()
 {
 	unsigned int inCount  = 0U;
 	unsigned int outCount = 0U;
-	unsigned int endCount = 0U;
 
 	unsigned char* ambe = new unsigned char[m_ambeBlockSize];
 
@@ -258,12 +257,11 @@ void CDV3000SerialController::process()
 
 			if (encodeOut(ambe, m_ambeBlockSize)) {
 				m_ambeWriter->write(ambe, m_ambeBlockSize);
-				endCount = 0U;
 				outCount++;
-			} else {
-				endCount++;
 			}
-		} while (endCount < 10U);
+		} while (inCount != outCount);
+
+		printf("Encoding: %u frames (%.2fs)\n", inCount, float(inCount) / 50.0F);
 	} else {
 		assert(m_ambeReader != NULL);
 		assert(m_wavWriter != NULL);
@@ -284,12 +282,11 @@ void CDV3000SerialController::process()
 			float audio[AUDIO_BLOCK_SIZE];
 			if (decodeOut(audio, AUDIO_BLOCK_SIZE)) {
 				m_wavWriter->write(audio, AUDIO_BLOCK_SIZE);
-				endCount = 0U;
 				outCount++;
-			} else {
-				endCount++;
 			}
-		} while (endCount < 10U);
+		} while (inCount != outCount);
+
+		printf("Decoding: %u frames (%.2fs)\n", inCount, float(inCount) / 50.0F);
 	}
 
 	delete[] ambe;
