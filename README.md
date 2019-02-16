@@ -5,11 +5,13 @@ different AMBE formats.
 There are two programs, AMBE2WAV and WAV2AMBE and their purposes are obvious from
 their names. The usage of them is:
 
-  ambe2wav [-a amplitude] [-g <signature>] [-m dstar|dmr|ysf|p25] [-f 0|1] [-p <port>] [-s <speed>] [-r] [-d] <input> <output>
+  ambe2wav [-v] [-a amplitude] [-g <signature>] [-m dstar|dmr|ysf|p25] [-f 0|1] [-p <port>] [-s <speed>] [-r] [-d] <input> <output>
 
-  wav2ambe [-a amplitude] [-g <signature>] [-m dstar|dmr|ysf|p25] [-f 0|1] [-p <port>] [-s <speed>] [-r] [-d] <input> <output>
+  wav2ambe [-v] [-a amplitude] [-g <signature>] [-m dstar|dmr|ysf|p25] [-f 0|1] [-p <port>] [-s <speed>] [-r] [-d] <input> <output>
 
 where
+
+[-v] print the version and exit.
 
 [-a amplitude] is the gain applied to the WAV file data, the default is 1.0
 
@@ -26,3 +28,4 @@ where
 [-r] issue a reset at startup
 
 [-d] print debugging information
+

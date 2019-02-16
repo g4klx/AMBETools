@@ -20,6 +20,7 @@
 
 #include "AMBEFileReader.h"
 #include "WAVFileWriter.h"
+#include "Version.h"
 #if defined(USE_IMBE_VOCODER_LIB)
 #include "imbe_vocoder.h"
 #include "IMBEFEC.h"
@@ -76,7 +77,7 @@ int main(int argc, char** argv)
 	bool debug = false;
 
 	int c;
-	while ((c = ::getopt(argc, argv, "a:df:g:m:p:rs:")) != -1) {
+	while ((c = ::getopt(argc, argv, "a:df:g:m:p:rs:v")) != -1) {
 		switch (c) {
 		case 'a':
 			amplitude = float(::atof(optarg));
@@ -111,16 +112,19 @@ int main(int argc, char** argv)
 		case 's':
 			speed = (unsigned int)::atoi(optarg);
 			break;
+		case 'v':
+			printf("Version: %s\n", version);
+			return 0;
 		case '?':
 			break;
 		default:
-			fprintf(stderr, "Usage: AMBE2WAV [-a amplitude] [-g <signature>] [-m dstar|dmr|ysf|p25] [-f 0|1] [-p <port>] [-s <speed>] [-r] [-d] <input> <output>\n");
+			fprintf(stderr, "Usage: AMBE2WAV [-v] [-a amplitude] [-g <signature>] [-m dstar|dmr|ysf|p25] [-f 0|1] [-p <port>] [-s <speed>] [-r] [-d] <input> <output>\n");
 			break;
 		}
 	}
 
 	if (optind > (argc - 2)) {
-		fprintf(stderr, "Usage: AMBE2WAV [-a amplitude] [-g <signature>] [-m dstar|dmr|ysf|p25] [-f 0|1] [-p <port>] [-s <speed>] [-r] [-d] <input> <output>\n");
+		fprintf(stderr, "Usage: AMBE2WAV [-v] [-a amplitude] [-g <signature>] [-m dstar|dmr|ysf|p25] [-f 0|1] [-p <port>] [-s <speed>] [-r] [-d] <input> <output>\n");
 		return 1;
 	}
 
