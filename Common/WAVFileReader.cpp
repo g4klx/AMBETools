@@ -28,9 +28,9 @@ const int WAVE_FORMAT_IEEE_FLOAT = 3;
 CWAVFileReader::CWAVFileReader(const std::string& fileName, unsigned int blockSize) :
 m_fileName(fileName),
 m_blockSize(blockSize),
-m_format(FORMAT_16BIT),
 m_channels(0U),
 m_sampleRate(0U),
+m_format(FORMAT_16BIT),
 m_buffer8(NULL),
 m_buffer16(NULL),
 m_handle(NULL),
@@ -231,164 +231,30 @@ const int FORMAT_IEEE_FLOAT = 3;
 CWAVFileReader::CWAVFileReader(const std::string& fileName, unsigned int blockSize) :
 m_fileName(fileName),
 m_blockSize(blockSize),
-m_format(FORMAT_16BIT),
 m_channels(0U),
 m_sampleRate(0U),
-m_buffer8(NULL),
-m_buffer16(NULL),
-m_file(NULL),
-m_offset(0),
-m_length(0U)
+m_file(NULL)
 {
 	assert(blockSize > 0U);
-
-	m_buffer8  = new uint8_t[blockSize * 4U];
-	m_buffer16 = new int16_t[blockSize * 4U];
 }
 
 CWAVFileReader::~CWAVFileReader()
 {
-	delete[] m_buffer8;
-	delete[] m_buffer16;
 }
 
 bool CWAVFileReader::open()
 {
-	m_file = ::fopen(m_fileName.c_str(), "rb");
+	SF_INFO info;
+	info.format = 0;
+
+	m_file = ::sf_open(m_fileName.c_str(), SFM_READ, &info);
 	if (m_file == NULL) {
 		::fprintf(stderr, "WAVFileReader: could not open the WAV file %s.\n", m_fileName.c_str());
 		return false;
 	}
 
-	unsigned char buffer[4];
-	unsigned int n = ::fread(buffer, sizeof(uint8_t), 4, m_file);
-	if (n != 4U || ::memcmp(buffer, "RIFF", 4) != 0) {
-		::fprintf(stderr, "WAVFileReader: %s has no \"RIFF\" signature.\n", m_fileName.c_str());
-		::fclose(m_file);
-		m_file = NULL;
-		return false;
-	}
-
-	n = ::fread(buffer, sizeof(uint8_t), 4, m_file);
-	if (n != 4U) {
-		::fprintf(stderr, "WAVFileReader: %s is corrupt, cannot read the file length.\n", m_fileName.c_str());
-		::fclose(m_file);
-		m_file = NULL;
-		return false;
-	}
-
-	n = ::fread(buffer, sizeof(uint8_t), 4, m_file);
-	if (n != 4U || ::memcmp(buffer, "WAVE", 4) != 0) {
-		::fprintf(stderr, "WAVFileReader: %s has no \"WAVE\" header.\n", m_fileName.c_str());
-		::fclose(m_file);
-		m_file = NULL;
-		return false;
-	}
-
-	n = ::fread(buffer, sizeof(uint8_t), 4, m_file);
-	if (n != 4U || ::memcmp(buffer, "fmt ", 4) != 0) {
-		::fprintf(stderr, "WAVFileReader: %s has no \"fmt \" chunk.\n", m_fileName.c_str());
-		::fclose(m_file);
-		m_file = NULL;
-		return false;
-	}
-
-	uint32_t length;
-	n = ::fread(&length, sizeof(uint32_t), 1, m_file);
-	if (n != 1 || length < 16U) {
-		::fprintf(stderr, "WAVFileReader: %s is corrupt, cannot read the WAVEFORMATEX structure length.\n", m_fileName.c_str());
-		::fclose(m_file);
-		m_file = NULL;
-		return false;
-	}
-
-	uint16_t compCode;
-	n = ::fread(&compCode, sizeof(uint16_t), 1, m_file);
-	if (n != 1 || (compCode != FORMAT_PCM && compCode != FORMAT_IEEE_FLOAT)) {
-		::fprintf(stderr, "WAVFileReader: %s is not PCM or IEEE Float format, is %u.\n", m_fileName.c_str(), compCode);
-		::fclose(m_file);
-		m_file = NULL;
-		return false;
-	}
-
-	n = ::fread(&m_channels, sizeof(uint16_t), 1, m_file);
-	if (n != 1 || m_channels > 2U) {
-		::fprintf(stderr, "WAVFileReader: %s has %u channels, more than 2.\n", m_fileName.c_str(), m_channels);
-		::fclose(m_file);
-		m_file = NULL;
-		return false;
-	}
-
-	n = ::fread(&m_sampleRate, sizeof(uint32_t), 1, m_file);
-	if (n != 1) {
-		::fprintf(stderr, "WAVFileReader: %s is corrupt, cannot read the sample rate.\n", m_fileName.c_str());
-		::fclose(m_file);
-		m_file = NULL;
-		return false;
-	}
-
-	uint32_t uint32;
-	n = ::fread(&uint32, sizeof(uint32_t), 1, m_file);
-	if (n != 1) {
-		::fprintf(stderr, "WAVFileReader: %s is corrupt, cannot read the average bytes per second\n", m_fileName.c_str());
-		::fclose(m_file);
-		m_file = NULL;
-		return false;
-	}
-
-	uint16_t uint16;
-	n = ::fread(&uint16, sizeof(uint16_t), 1, m_file);
-	if (n != 1) {
-		::fprintf(stderr, "WAVFileReader: %s is corrupt, cannot read the block align.\n", m_fileName.c_str());
-		::fclose(m_file);
-		m_file = NULL;
-		return false;
-	}
-
-	uint16_t bitsPerSample;
-	n = ::fread(&bitsPerSample, sizeof(uint16_t), 1, m_file);
-	if (n != 1) {
-		::fprintf(stderr, "WAVFileReader: %s is corrupt, cannot read the bitsPerSample.\n", m_fileName.c_str());
-		::fclose(m_file);
-		m_file = NULL;
-		return false;
-	}
-
-	if (bitsPerSample == 8U && compCode == FORMAT_PCM) {
-		m_format = FORMAT_8BIT;
-	} else if (bitsPerSample == 16U && compCode == FORMAT_PCM) {
-		m_format = FORMAT_16BIT;
-	} else if (bitsPerSample == 32U && compCode == FORMAT_IEEE_FLOAT) {
-		m_format = FORMAT_32BIT;
-	} else {
-		::fprintf(stderr, "WAVFileReader: %s has sample width %u and format %u.\n", m_fileName.c_str(), bitsPerSample, compCode);
-		::fclose(m_file);
-		m_file = NULL;
-		return false;
-	}
-
-	// Now drain any extra bytes of data
-	if (length > 16U)
-		::fseek(m_file, length - 16U, SEEK_CUR);
-
-	n = ::fread(buffer, sizeof(uint8_t), 4, m_file);
-	if (n != 4U || ::memcmp(buffer, "data", 4) != 0) {
-		::fprintf(stderr, "WAVFileReader: %s has no \"data\" chunk.\n", m_fileName.c_str());
-		::fclose(m_file);
-		m_file = NULL;
-		return false;
-	}
-
-	n = ::fread(&m_length, sizeof(uint32_t), 1, m_file);
-	if (n != 1) {
-		::fprintf(stderr, "WAVFileReader: %s is corrupt, cannot read the \"data\" chunk size\n", m_fileName.c_str());
-		::fclose(m_file);
-		m_file = NULL;
-		return false;
-	}
-
-	// Get the current location so we can rewind if needed
-	m_offset = ::ftell(m_file);
+	m_channels   = info.channels;
+	m_sampleRate = info.samplerate;
 
 	return true;
 }
@@ -402,40 +268,10 @@ unsigned int CWAVFileReader::read(float* data, unsigned int length)
 		return 0U;
 
 	unsigned int elements = length * m_channels;
-	unsigned int i;
-	size_t n = 0U;
 
-	switch (m_format) {
-		case FORMAT_8BIT:
-			n = ::fread(m_buffer8, sizeof(uint8_t), elements, m_file);
-
-			if (n == 0U)
-				return 0U;
-
-			for (i = 0U; i < n; i++)
-				data[i] = (float(m_buffer8[i]) - 127.0F) / 128.0F;
-
-			break;
-
-		case FORMAT_16BIT:
-			n = ::fread(m_buffer16, sizeof(uint16_t), elements, m_file);
-
-			if (n == 0U)
-				return 0U;
-
-			for (i = 0U; i < n; i++)
-				data[i] = float(m_buffer16[i]) / 32768.0F;
-
-			break;
-
-		case FORMAT_32BIT:
-			n = ::fread(data, sizeof(float), elements, m_file);
-
-			if (n == 0U)
-				return 0U;
-
-			break;
-	}
+	sf_count_t n = ::sf_readf_float(m_file, data, elements);
+	if (n == 0U)
+		return 0U;
 
 	return n / m_channels;
 }
@@ -444,14 +280,14 @@ void CWAVFileReader::rewind()
 {
 	assert(m_file != NULL);
 
-	::fseek(m_file, m_offset, SEEK_SET);
+	::sf_seek(m_file, 0, SEEK_SET);
 }
 
 void CWAVFileReader::close()
 {
 	assert(m_file != NULL);
 
-	::fclose(m_file);
+	::sf_close(m_file);
 
 	m_file = NULL;
 }

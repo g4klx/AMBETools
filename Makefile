@@ -1,6 +1,7 @@
 export CXX     := g++
 export CFLAGS  := -O2 -Wall
 export LDFLAGS := 
+export LIBS    := -lsndfile
 
 all:	AMBE2WAV/ambe2wav WAV2AMBE/wav2ambe
 

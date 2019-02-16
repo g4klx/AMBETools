@@ -171,77 +171,30 @@ m_sampleRate(sampleRate),
 m_channels(channels),
 m_sampleWidth(sampleWidth),
 m_blockSize(blockSize),
-m_buffer8(NULL),
-m_buffer16(NULL),
-m_file(NULL),
-m_offset1(0),
-m_offset2(0),
-m_length(0U)
+m_file(NULL)
 {
 	assert(sampleRate > 0U);
 	assert(channels == 1U || channels == 2U);
 	assert(sampleWidth == 8U || sampleWidth == 16U || sampleWidth == 32U);
 	assert(blockSize > 0U);
-
-	m_buffer8  = new uint8_t[channels * blockSize];
-	m_buffer16 = new int16_t[channels * blockSize];
 }
 
 CWAVFileWriter::~CWAVFileWriter()
 {
-	delete[] m_buffer8;
-	delete[] m_buffer16;
 }
 
 bool CWAVFileWriter::open()
 {
-	m_length = 0U ;
+	SF_INFO info;
+	info.samplerate = m_sampleRate;
+	info.channels   = m_channels;
+	info.format     = SF_FORMAT_WAV | SF_FORMAT_PCM_16;
 
-	m_file = ::fopen(m_fileName.c_str(), "wb");
+	m_file = ::sf_open(m_fileName.c_str(), SFM_WRITE, &info);
 	if (m_file == NULL) {
 		::fprintf(stderr, "WAVFileWriter: could not open the file %s in WAVFileWriter\n", m_fileName.c_str());
 		return false;
 	}
-
-	::fwrite("RIFF", sizeof(uint8_t), 4, m_file);   // 4 bytes, file signature
-
-	m_offset1 = ::ftell(m_file);
-
-	uint32_t uint32 = 0;
-	::fwrite(&uint32, sizeof(uint32_t), 1, m_file); // 4 bytes, length of file, filled in later
-
-	::fwrite("WAVE", sizeof(uint8_t), 4, m_file);   // 4 bytes, RIFF file type
-
-	::fwrite("fmt ", sizeof(uint8_t), 4, m_file);   // 4 bytes, chunk signature
-
-	uint32 = 16U;
-	::fwrite(&uint32, sizeof(uint32_t), 1, m_file); // 4 bytes, length of "fmt " chunk
-
-	uint16_t uint16;
-	if (m_sampleWidth == 8U || m_sampleWidth == 16U)
-		uint16 = 1U;                                // 2 bytes, integer PCM/uncompressed
-	else
-		uint16 = 3U;                                // 2 bytes, float PCM/uncompressed
-	::fwrite(&uint16, sizeof(uint16), 1, m_file);
-
-	::fwrite(&m_channels, sizeof(uint16), 1, m_file);// 2 bytes, no of channels
-        
-	::fwrite(&m_sampleRate, sizeof(uint32_t), 1, m_file);// 4 bytes, sample rate
-
-	uint32 = m_sampleRate * m_channels * m_sampleWidth / 8U;
-	::fwrite(&uint32, sizeof(uint32_t), 1, m_file); // 4 bytes, average bytes per second
-
-	uint16 = m_channels * m_sampleWidth / 8U;
-	::fwrite(&uint16, sizeof(uint16), 1, m_file);   // 2 bytes, block alignment
-
-	::fwrite(&m_sampleWidth, sizeof(uint16), 1, m_file); // 2 bytes, significant bits per sample
-
-	::fwrite("data", 4, 1, m_file);                      // 4 bytes, chunk signature
-
-	m_offset2 = ::ftell(m_file);
-
-	uint32 = 0U;
-	::fwrite(&uint32, sizeof(uint32_t), 1, m_file);      // 4 bytes, length of "data" chunk, filled in later
 
 	return true;
 }
@@ -253,33 +206,8 @@ bool CWAVFileWriter::write(const float* buffer, unsigned int length)
 	assert(length > 0U && length <= m_blockSize);
 
 	unsigned int elements = length * m_channels;
-	unsigned int i;
-	size_t n = 0UL;
 
-	switch (m_sampleWidth) {
-		case 8U:
-			for (i = 0U; i < elements; i++)
-				m_buffer8[i] = uint8_t(buffer[i] * 128.0F + 127.0F);
-
-			n = ::fwrite(m_buffer8, sizeof(uint8_t), elements, m_file);
-
-			break;
-
-		case 16U:
-			for (i = 0U; i < elements; i++)
-				m_buffer16[i] = int16_t(buffer[i] * 32768.0F);
-
-			n = ::fwrite(m_buffer16, sizeof(uint16_t), elements, m_file);
-
-			break;
-
-		case 32U:
-			n = ::fwrite(buffer, sizeof(float), elements, m_file);
-
-			break;
-	}
-
-	m_length += n;
+	sf_count_t n = ::sf_writef_float(m_file, buffer, elements);
 
 	return n == elements;
 }
@@ -288,20 +216,8 @@ void CWAVFileWriter::close()
 {
 	assert(m_file != NULL);
 
-	if ((m_length % 2U) != 0U) {
-		unsigned char c = 0U;
-		::fwrite(&c, sizeof(uint8_t), 1, m_file);
-	}
+	::sf_close(m_file);
 
-	::fseek(m_file, m_offset2, SEEK_SET);
-	::fwrite(&m_length, sizeof(uint32_t), 1, m_file);
-
-	uint32_t length = m_length + 36U;
-
-	::fseek(m_file, m_offset1, SEEK_SET);
-	::fwrite(&length, sizeof(uint32_t), 1, m_file);
-
-	::fclose(m_file);
 	m_file = NULL;
 }
 

@@ -22,6 +22,7 @@
 #include <string>
 
 #include <cstdio>
+#include <sndfile.h>
 
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
@@ -50,20 +51,18 @@ public:
 private:
 	std::string    m_fileName;
 	unsigned int   m_blockSize;
-	WAVFORMAT      m_format;
 	unsigned short m_channels;
 	unsigned int   m_sampleRate;
+#if defined(_WIN32) || defined(_WIN64)
+	WAVFORMAT      m_format;
 	uint8_t*       m_buffer8;
 	int16_t*       m_buffer16;
-#if defined(_WIN32) || defined(_WIN64)
 	HMMIO          m_handle;
 	MMCKINFO       m_parent;
 	MMCKINFO       m_child;
 	LONG           m_offset;
 #else
-	FILE*          m_file;
-	unsigned long  m_offset;
-	unsigned int   m_length;
+	SNDFILE*       m_file;
 #endif
 };
 

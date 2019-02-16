@@ -22,6 +22,7 @@
 #include <string>
 
 #include <cstdio>
+#include <sndfile.h>
 
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
@@ -43,17 +44,14 @@ private:
 	unsigned short m_channels;
 	unsigned short m_sampleWidth;
 	unsigned int   m_blockSize;
+#if defined(_WIN32) || defined(_WIN64)
 	uint8_t*       m_buffer8;
 	int16_t*       m_buffer16;
-#if defined(_WIN32) || defined(_WIN64)
 	HMMIO          m_handle;
 	MMCKINFO       m_parent;
 	MMCKINFO       m_child;
 #else
-	FILE*          m_file;
-	unsigned long  m_offset1;
-	unsigned long  m_offset2;
-	unsigned long  m_length;
+	SNDFILE*       m_file;
 #endif
 };
 
