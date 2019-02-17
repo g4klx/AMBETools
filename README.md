@@ -29,3 +29,5 @@ where
 
 [-d] print debugging information
 
+On Linux these programs need access to the libsndfile library for compiling and running.
+
