@@ -31,11 +31,15 @@ const unsigned char DV3000_TYPE_AUDIO   = 0x02U;
 const unsigned char DV3000_CONTROL_RATET        = 0x09U;
 const unsigned char DV3000_CONTROL_RATEP        = 0x0AU;
 const unsigned char DV3000_CONTROL_PRODID       = 0x30U;
+const unsigned char DV3000_CONTROL_VERSTRING    = 0x31U;
 const unsigned char DV3000_CONTROL_RESETSOFTCFG = 0x34U;
 const unsigned char DV3000_CONTROL_READY        = 0x39U;
 
 const unsigned char DV3000_REQ_PRODID[]     = {DV3000_START_BYTE, 0x00U, 0x01U, DV3000_TYPE_CONTROL, DV3000_CONTROL_PRODID};
 const unsigned int DV3000_REQ_PRODID_LEN    = 5U;
+
+const unsigned char DV3000_REQ_VERSTRING[]     = {DV3000_START_BYTE, 0x00U, 0x01U, DV3000_TYPE_CONTROL, DV3000_CONTROL_VERSTRING};
+const unsigned int DV3000_REQ_VERSTRING_LEN    = 5U;
 
 const unsigned char DV3000_REQ_RESET[] = {DV3000_START_BYTE, 0x00U, 0x07U, DV3000_TYPE_CONTROL, DV3000_CONTROL_RESETSOFTCFG, 0x05U, 0x00U, 0x00U, 0x0FU, 0x00U, 0x00U};
 const unsigned int DV3000_REQ_RESET_LEN = 11U;
@@ -174,6 +178,20 @@ bool CDV3000SerialController::open()
 	} while (type != RESP_NAME);
 
 	::fprintf(stdout, "DVSI AMBE chip identified as: %s\n", buffer + 5U);
+
+	do {
+		m_serial.write(DV3000_REQ_VERSTRING, DV3000_REQ_VERSTRING_LEN);
+		if (m_debug)
+			CUtils::dump("Verson String", DV3000_REQ_VERSTRING, DV3000_REQ_VERSTRING_LEN);
+
+		type = getResponse(buffer, BUFFER_LENGTH);
+		for (unsigned int i = 0U; i < 100U && type != RESP_VERSION; i++) {
+			CUtils::sleep(10U);
+			type = getResponse(buffer, BUFFER_LENGTH);
+		}
+	} while (type != RESP_VERSION);
+
+	::fprintf(stdout, "DVSI AMBE chip version is: %s\n", buffer + 5U);
 
 	do {
 		if (m_mode == MODE_DSTAR && m_fec) {
@@ -423,6 +441,8 @@ CDV3000SerialController::RESP_TYPE CDV3000SerialController::getResponse(unsigned
 	} else if (buffer[3U] == DV3000_TYPE_CONTROL) {
 		if (buffer[4U] == DV3000_CONTROL_PRODID) {
 			return RESP_NAME;
+		} else if (buffer[4U] == DV3000_CONTROL_VERSTRING) {
+			return RESP_VERSION;
 		} else if (buffer[4U] == DV3000_CONTROL_RATEP) {
 			return RESP_RATEP;
 		} else if (buffer[4U] == DV3000_CONTROL_RATET) {
