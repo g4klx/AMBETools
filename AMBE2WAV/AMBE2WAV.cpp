@@ -21,17 +21,18 @@
 #include "AMBEFileReader.h"
 #include "WAVFileWriter.h"
 #include "Version.h"
-#if defined(USE_IMBE_VOCODER_LIB)
+#if !defined(HAVE_USB3000_P25)
 #include "imbe_vocoder.h"
 #include "IMBEFEC.h"
 #endif
 
 #include <cstring>
 
-const uint8_t  BIT_MASK_TABLE1[] = { 0x80U, 0x40U, 0x20U, 0x10U, 0x08U, 0x04U, 0x02U, 0x01U };
+const uint8_t  BIT_MASK_TABLE8[]  = { 0x80U, 0x40U, 0x20U, 0x10U, 0x08U, 0x04U, 0x02U, 0x01U };
 
-#define WRITE_BIT1(p,i,b) p[(i)>>3] = (b) ? (p[(i)>>3] | BIT_MASK_TABLE1[(i)&7]) : (p[(i)>>3] & ~BIT_MASK_TABLE1[(i)&7])
-#define READ_BIT1(p,i)    (p[(i)>>3] & BIT_MASK_TABLE1[(i)&7])
+#define WRITE_BIT8(p,i,b)   p[(i)>>3] = (b) ? (p[(i)>>3] | BIT_MASK_TABLE8[(i)&7]) : (p[(i)>>3] & ~BIT_MASK_TABLE8[(i)&7])
+#define READ_BIT8(p,i)     (p[(i)>>3] & BIT_MASK_TABLE8[(i)&7])
+
 
 #if defined(_WIN32) || defined(_WIN64)
 char* optarg = NULL;
@@ -174,7 +175,7 @@ int CAMBE2WAV::run()
 		return 1;
 	}
 
-#if defined(USE_IMBE_VOCODER_LIB)
+#if !defined(HAVE_USB3000_P25)
 	if (m_mode == MODE_P25) {
 		unsigned int blockSize = m_fec ? 18U : 11U;
 
@@ -189,9 +190,25 @@ int CAMBE2WAV::run()
 				::memcpy(imbe, data, 11U);
 			}
 
-			int16_t frame[88U];
-			for (unsigned int i = 0U; i < 88U; i++)
-				frame[i] = READ_BIT1(imbe, i) != 0x00U ? 1 : 0;
+			int16_t frame[8U];
+			unsigned int offset = 0U;
+			int16_t mask;
+			for (unsigned int i = 0U, frame[0U] = 0x0000, mask = 0x0001; i < 12U; i++, mask <<= 1, offset++)
+				frame[0U] |= READ_BIT8(imbe, offset) != 0x00U ? mask : 0x0000;
+			for (unsigned int i = 0U, frame[1U] = 0x0000, mask = 0x0001; i < 12U; i++, mask <<= 1, offset++)
+				frame[1U] |= READ_BIT8(imbe, offset) != 0x00U ? mask : 0x0000;
+			for (unsigned int i = 0U, frame[2U] = 0x0000, mask = 0x0001; i < 12U; i++, mask <<= 1, offset++)
+				frame[2U] |= READ_BIT8(imbe, offset) != 0x00U ? mask : 0x0000;
+			for (unsigned int i = 0U, frame[3U] = 0x0000, mask = 0x0001; i < 12U; i++, mask <<= 1, offset++)
+				frame[3U] |= READ_BIT8(imbe, offset) != 0x00U ? mask : 0x0000;
+			for (unsigned int i = 0U, frame[4U] = 0x0000, mask = 0x0001; i < 11U; i++, mask <<= 1, offset++)
+				frame[4U] |= READ_BIT8(imbe, offset) != 0x00U ? mask : 0x0000;
+			for (unsigned int i = 0U, frame[5U] = 0x0000, mask = 0x0001; i < 11U; i++, mask <<= 1, offset++)
+				frame[5U] |= READ_BIT8(imbe, offset) != 0x00U ? mask : 0x0000;
+			for (unsigned int i = 0U, frame[6U] = 0x0000, mask = 0x0001; i < 11U; i++, mask <<= 1, offset++)
+				frame[6U] |= READ_BIT8(imbe, offset) != 0x00U ? mask : 0x0000;
+			for (unsigned int i = 0U, frame[7U] = 0x0000, mask = 0x0001; i < 7U; i++, mask <<= 1, offset++)
+				frame[7U] |= READ_BIT8(imbe, offset) != 0x00U ? mask : 0x0000;
 
 			int16_t audioInt[AUDIO_BLOCK_SIZE];
 

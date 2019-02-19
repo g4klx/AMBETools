@@ -21,17 +21,18 @@
 #include "WAVFileReader.h"
 #include "AMBEFileWriter.h"
 #include "Version.h"
-#if defined(USE_IMBE_VOCODER_LIB)
+#if !defined(HAVE_USB3000_P25)
 #include "imbe_vocoder.h"
 #include "IMBEFEC.h"
 #endif
 
 #include <cstring>
 
-const uint8_t  BIT_MASK_TABLE1[] = { 0x80U, 0x40U, 0x20U, 0x10U, 0x08U, 0x04U, 0x02U, 0x01U };
+const uint8_t  BIT_MASK_TABLE8[]  = { 0x80U, 0x40U, 0x20U, 0x10U, 0x08U, 0x04U, 0x02U, 0x01U };
 
-#define WRITE_BIT1(p,i,b) p[(i)>>3] = (b) ? (p[(i)>>3] | BIT_MASK_TABLE1[(i)&7]) : (p[(i)>>3] & ~BIT_MASK_TABLE1[(i)&7])
-#define READ_BIT1(p,i)    (p[(i)>>3] & BIT_MASK_TABLE1[(i)&7])
+#define WRITE_BIT8(p,i,b)   p[(i)>>3] = (b) ? (p[(i)>>3] | BIT_MASK_TABLE8[(i)&7]) : (p[(i)>>3] & ~BIT_MASK_TABLE8[(i)&7])
+#define READ_BIT8(p,i)     (p[(i)>>3] & BIT_MASK_TABLE8[(i)&7])
+
 
 #if defined(_WIN32) || defined(_WIN64)
 char* optarg = NULL;
@@ -186,7 +187,7 @@ int CWAV2AMBE::run()
 		return 1;
 	}
 
-#if defined(USE_IMBE_VOCODER_LIB)
+#if !defined(HAVE_USB3000_P25)
 	if (m_mode == MODE_P25) {
 		float audioFloat[AUDIO_BLOCK_SIZE];
 		while (reader.read(audioFloat, AUDIO_BLOCK_SIZE) == AUDIO_BLOCK_SIZE) {
@@ -196,12 +197,28 @@ int CWAV2AMBE::run()
 			for (unsigned int i = 0U; i < AUDIO_BLOCK_SIZE; i++)
 				audioInt[i] = int16_t((audioFloat[i] * 128) + 128);
 
-			int16_t frameInt[88U];
+			int16_t frameInt[8U];
 			vocoder.imbe_encode(frameInt, audioInt);
 
 			unsigned char frame[11U];
-			for (unsigned int i = 0U; i < 88U; i++)
-				WRITE_BIT1(frame, i, frameInt[i] != 0);
+			unsigned int offset = 0U;
+			int16_t mask;
+			for (unsigned int i = 0U, mask = 0x0001; i < 12U; i++; mask <<= 1, offset++)
+				WRITE_BIT8(frame, offset, (frameInt[0U] & mask) != 0);
+			for (unsigned int i = 0U, mask = 0x0001; i < 12U; i++; mask <<= 1, offset++)
+				WRITE_BIT8(frame, offset, (frameInt[1U] & mask) != 0);
+			for (unsigned int i = 0U, mask = 0x0001; i < 12U; i++; mask <<= 1, offset++)
+				WRITE_BIT8(frame, offset, (frameInt[2U] & mask) != 0);
+			for (unsigned int i = 0U, mask = 0x0001; i < 12U; i++; mask <<= 1, offset++)
+				WRITE_BIT8(frame, offset, (frameInt[3U] & mask) != 0);
+			for (unsigned int i = 0U, mask = 0x0001; i < 11U; i++; mask <<= 1, offset++)
+				WRITE_BIT8(frame, offset, (frameInt[4U] & mask) != 0);
+			for (unsigned int i = 0U, mask = 0x0001; i < 11U; i++; mask <<= 1, offset++)
+				WRITE_BIT8(frame, offset, (frameInt[5U] & mask) != 0);
+			for (unsigned int i = 0U, mask = 0x0001; i < 11U; i++; mask <<= 1, offset++)
+				WRITE_BIT8(frame, offset, (frameInt[6U] & mask) != 0);
+			for (unsigned int i = 0U, mask = 0x0001; i < 7U; i++; mask <<= 1, offset++)
+				WRITE_BIT8(frame, offset, (frameInt[7U] & mask) != 0);
 
 			if (m_fec) {
 				uint8_t data[18U];
