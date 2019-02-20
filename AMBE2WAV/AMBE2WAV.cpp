@@ -193,36 +193,36 @@ int CAMBE2WAV::run()
 			int16_t frame[8U] = {0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000};
 			unsigned int offset = 0U;
 
-			int16_t mask = 0x0001;
-			for (unsigned int i = 0U; i < 12U; i++, mask <<= 1, offset++)
+			int16_t mask = 0x0800;
+			for (unsigned int i = 0U; i < 12U; i++, mask >>= 1, offset++)
 				frame[0U] |= READ_BIT8(imbe, offset) != 0x00U ? mask : 0x0000;
 
-			mask = 0x0001;
-			for (unsigned int i = 0U; i < 12U; i++, mask <<= 1, offset++)
+			mask = 0x0800;
+			for (unsigned int i = 0U; i < 12U; i++, mask >>= 1, offset++)
 				frame[1U] |= READ_BIT8(imbe, offset) != 0x00U ? mask : 0x0000;
 
-			mask = 0x0001;
-			for (unsigned int i = 0U; i < 12U; i++, mask <<= 1, offset++)
+			mask = 0x0800;
+			for (unsigned int i = 0U; i < 12U; i++, mask >>= 1, offset++)
 				frame[2U] |= READ_BIT8(imbe, offset) != 0x00U ? mask : 0x0000;
 
-			mask = 0x0001;
-			for (unsigned int i = 0U; i < 12U; i++, mask <<= 1, offset++)
+			mask = 0x0800;
+			for (unsigned int i = 0U; i < 12U; i++, mask >>= 1, offset++)
 				frame[3U] |= READ_BIT8(imbe, offset) != 0x00U ? mask : 0x0000;
 
-			mask = 0x0001;
-			for (unsigned int i = 0U; i < 11U; i++, mask <<= 1, offset++)
+			mask = 0x0400;
+			for (unsigned int i = 0U; i < 11U; i++, mask >>= 1, offset++)
 				frame[4U] |= READ_BIT8(imbe, offset) != 0x00U ? mask : 0x0000;
 
-			mask = 0x0001;
-			for (unsigned int i = 0U; i < 11U; i++, mask <<= 1, offset++)
+			mask = 0x0400;
+			for (unsigned int i = 0U; i < 11U; i++, mask >>= 1, offset++)
 				frame[5U] |= READ_BIT8(imbe, offset) != 0x00U ? mask : 0x0000;
 
-			mask = 0x0001;
-			for (unsigned int i = 0U; i < 11U; i++, mask <<= 1, offset++)
+			mask = 0x0400;
+			for (unsigned int i = 0U; i < 11U; i++, mask >>= 1, offset++)
 				frame[6U] |= READ_BIT8(imbe, offset) != 0x00U ? mask : 0x0000;
 
-			mask = 0x0001;
-			for (unsigned int i = 0U; i < 7U; i++, mask <<= 1, offset++)
+			mask = 0x0040;
+			for (unsigned int i = 0U; i < 7U; i++, mask >>= 1, offset++)
 				frame[7U] |= READ_BIT8(imbe, offset) != 0x00U ? mask : 0x0000;
 
 			int16_t audioInt[AUDIO_BLOCK_SIZE];

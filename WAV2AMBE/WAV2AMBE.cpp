@@ -201,36 +201,36 @@ int CWAV2AMBE::run()
 			unsigned char frame[11U];
 			unsigned int offset = 0U;
 
-			int16_t mask = 0x0001;
-			for (unsigned int i = 0U; i < 12U; i++, mask <<= 1, offset++)
+			int16_t mask = 0x0800;
+			for (unsigned int i = 0U; i < 12U; i++, mask >>= 1, offset++)
 				WRITE_BIT8(frame, offset, (frameInt[0U] & mask) != 0);
 
-			mask = 0x0001;
-			for (unsigned int i = 0U; i < 12U; i++, mask <<= 1, offset++)
+			mask = 0x0800;
+			for (unsigned int i = 0U; i < 12U; i++, mask >>= 1, offset++)
 				WRITE_BIT8(frame, offset, (frameInt[1U] & mask) != 0);
 
-			mask = 0x0001;
-			for (unsigned int i = 0U; i < 12U; i++, mask <<= 1, offset++)
+			mask = 0x0800;
+			for (unsigned int i = 0U; i < 12U; i++, mask >>= 1, offset++)
 				WRITE_BIT8(frame, offset, (frameInt[2U] & mask) != 0);
 
-			mask = 0x0001;
-			for (unsigned int i = 0U; i < 12U; i++, mask <<= 1, offset++)
+			mask = 0x0800;
+			for (unsigned int i = 0U; i < 12U; i++, mask >>= 1, offset++)
 				WRITE_BIT8(frame, offset, (frameInt[3U] & mask) != 0);
 
-			mask = 0x0001;
-			for (unsigned int i = 0U; i < 11U; i++, mask <<= 1, offset++)
+			mask = 0x0400;
+			for (unsigned int i = 0U; i < 11U; i++, mask >>= 1, offset++)
 				WRITE_BIT8(frame, offset, (frameInt[4U] & mask) != 0);
 
-			mask = 0x0001;
-			for (unsigned int i = 0U; i < 11U; i++, mask <<= 1, offset++)
+			mask = 0x0400;
+			for (unsigned int i = 0U; i < 11U; i++, mask >>= 1, offset++)
 				WRITE_BIT8(frame, offset, (frameInt[5U] & mask) != 0);
 
-			mask = 0x0001;
-			for (unsigned int i = 0U; i < 11U; i++, mask <<= 1, offset++)
+			mask = 0x0400;
+			for (unsigned int i = 0U; i < 11U; i++, mask >>= 1, offset++)
 				WRITE_BIT8(frame, offset, (frameInt[6U] & mask) != 0);
 
-			mask = 0x0001;
-			for (unsigned int i = 0U; i < 7U; i++, mask <<= 1, offset++)
+			mask = 0x0040;
+			for (unsigned int i = 0U; i < 7U; i++, mask >>= 1, offset++)
 				WRITE_BIT8(frame, offset, (frameInt[7U] & mask) != 0);
 
 			if (m_fec) {
