@@ -97,8 +97,6 @@ int main(int argc, char** argv)
 				mode = MODE_DSTAR;
 			else if (::strcmp(optarg, "dmr") == 0)
 				mode = MODE_DMR;
-			else if (::strcmp(optarg, "ysf") == 0)
-				mode = MODE_YSF;
 			else if (::strcmp(optarg, "p25") == 0)
 				mode = MODE_P25;
 			else
@@ -119,13 +117,13 @@ int main(int argc, char** argv)
 		case '?':
 			break;
 		default:
-			fprintf(stderr, "Usage: WAV2AMBE [-v] [-a amplitude] [-g <signature>] [-m dstar|dmr|ysf|p25] [-f 0|1] [-p <port>] [-s <speed>] [-r] [-d] <input> <output>\n");
+			fprintf(stderr, "Usage: WAV2AMBE [-v] [-a amplitude] [-g <signature>] [-m dstar|dmr|p25] [-f 0|1] [-p <port>] [-s <speed>] [-r] [-d] <input> <output>\n");
 			break;
 		}
 	}
 
 	if (optind > (argc - 2)) {
-		fprintf(stderr, "Usage: WAV2AMBE [-v] [-a amplitude] [-g <signature>] [-m dstar|dmr|ysf|p25] [-f 0|1] [-p <port>] [-s <speed>] [-r] [-d] <input> <output>\n");
+		fprintf(stderr, "Usage: WAV2AMBE [-v] [-a amplitude] [-g <signature>] [-m dstar|dmr|p25] [-f 0|1] [-p <port>] [-s <speed>] [-r] [-d] <input> <output>\n");
 		return 1;
 	}
 
