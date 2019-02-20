@@ -231,7 +231,7 @@ int CAMBE2WAV::run()
 
 			float audioFloat[AUDIO_BLOCK_SIZE];
 			for (unsigned int i = 0U; i < AUDIO_BLOCK_SIZE; i++)
-				audioFloat[i] = float(audioInt[i]) / 32768.0F;
+				audioFloat[i] = float(audioInt[i]) / 3276.8F;
 
 			writer.write(audioFloat, AUDIO_BLOCK_SIZE);
 		}

@@ -193,7 +193,7 @@ int CWAV2AMBE::run()
 		while (reader.read(audioFloat, AUDIO_BLOCK_SIZE) == AUDIO_BLOCK_SIZE) {
 			int16_t audioInt[AUDIO_BLOCK_SIZE];
 			for (unsigned int i = 0U; i < AUDIO_BLOCK_SIZE; i++)
-				audioInt[i] = int16_t(audioFloat[i] * 32768.0F + 0.5F);
+				audioInt[i] = int16_t(audioFloat[i] * 1000.0F + 0.5F);
 
 			int16_t frameInt[8U];
 			vocoder.imbe_encode(frameInt, audioInt);
