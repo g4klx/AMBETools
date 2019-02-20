@@ -188,24 +188,39 @@ int CAMBE2WAV::run()
 				::memcpy(imbe, data, 11U);
 			}
 
-			int16_t frame[8U];
+			int16_t frame[8U] = {0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000};
 			unsigned int offset = 0U;
-			int16_t mask;
-			for (unsigned int i = 0U, frame[0U] = 0x0000, mask = 0x0001; i < 12U; i++, mask <<= 1, offset++)
+
+			int16_t mask = 0x0001;
+			for (unsigned int i = 0U; i < 12U; i++, mask <<= 1, offset++)
 				frame[0U] |= READ_BIT8(imbe, offset) != 0x00U ? mask : 0x0000;
-			for (unsigned int i = 0U, frame[1U] = 0x0000, mask = 0x0001; i < 12U; i++, mask <<= 1, offset++)
+
+			mask = 0x0001;
+			for (unsigned int i = 0U; i < 12U; i++, mask <<= 1, offset++)
 				frame[1U] |= READ_BIT8(imbe, offset) != 0x00U ? mask : 0x0000;
-			for (unsigned int i = 0U, frame[2U] = 0x0000, mask = 0x0001; i < 12U; i++, mask <<= 1, offset++)
+
+			mask = 0x0001;
+			for (unsigned int i = 0U; i < 12U; i++, mask <<= 1, offset++)
 				frame[2U] |= READ_BIT8(imbe, offset) != 0x00U ? mask : 0x0000;
-			for (unsigned int i = 0U, frame[3U] = 0x0000, mask = 0x0001; i < 12U; i++, mask <<= 1, offset++)
+
+			mask = 0x0001;
+			for (unsigned int i = 0U; i < 12U; i++, mask <<= 1, offset++)
 				frame[3U] |= READ_BIT8(imbe, offset) != 0x00U ? mask : 0x0000;
-			for (unsigned int i = 0U, frame[4U] = 0x0000, mask = 0x0001; i < 11U; i++, mask <<= 1, offset++)
+
+			mask = 0x0001;
+			for (unsigned int i = 0U; i < 11U; i++, mask <<= 1, offset++)
 				frame[4U] |= READ_BIT8(imbe, offset) != 0x00U ? mask : 0x0000;
-			for (unsigned int i = 0U, frame[5U] = 0x0000, mask = 0x0001; i < 11U; i++, mask <<= 1, offset++)
+
+			mask = 0x0001;
+			for (unsigned int i = 0U; i < 11U; i++, mask <<= 1, offset++)
 				frame[5U] |= READ_BIT8(imbe, offset) != 0x00U ? mask : 0x0000;
-			for (unsigned int i = 0U, frame[6U] = 0x0000, mask = 0x0001; i < 11U; i++, mask <<= 1, offset++)
+
+			mask = 0x0001;
+			for (unsigned int i = 0U; i < 11U; i++, mask <<= 1, offset++)
 				frame[6U] |= READ_BIT8(imbe, offset) != 0x00U ? mask : 0x0000;
-			for (unsigned int i = 0U, frame[7U] = 0x0000, mask = 0x0001; i < 7U; i++, mask <<= 1, offset++)
+
+			mask = 0x0001;
+			for (unsigned int i = 0U; i < 7U; i++, mask <<= 1, offset++)
 				frame[7U] |= READ_BIT8(imbe, offset) != 0x00U ? mask : 0x0000;
 
 			int16_t audioInt[AUDIO_BLOCK_SIZE];
@@ -233,7 +248,7 @@ int CAMBE2WAV::run()
 		controller.process();
 
 		controller.close();
-#if defined(USE_IMBE_VOCODER_LIB)
+#if !defined(HAVE_USB3000_P25)
 	}
 #endif
 

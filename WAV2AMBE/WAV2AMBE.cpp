@@ -200,22 +200,37 @@ int CWAV2AMBE::run()
 
 			unsigned char frame[11U];
 			unsigned int offset = 0U;
-			int16_t mask;
-			for (unsigned int i = 0U, mask = 0x0001; i < 12U; i++; mask <<= 1, offset++)
+
+			int16_t mask = 0x0001;
+			for (unsigned int i = 0U; i < 12U; i++, mask <<= 1, offset++)
 				WRITE_BIT8(frame, offset, (frameInt[0U] & mask) != 0);
-			for (unsigned int i = 0U, mask = 0x0001; i < 12U; i++; mask <<= 1, offset++)
+
+			mask = 0x0001;
+			for (unsigned int i = 0U; i < 12U; i++, mask <<= 1, offset++)
 				WRITE_BIT8(frame, offset, (frameInt[1U] & mask) != 0);
-			for (unsigned int i = 0U, mask = 0x0001; i < 12U; i++; mask <<= 1, offset++)
+
+			mask = 0x0001;
+			for (unsigned int i = 0U; i < 12U; i++, mask <<= 1, offset++)
 				WRITE_BIT8(frame, offset, (frameInt[2U] & mask) != 0);
-			for (unsigned int i = 0U, mask = 0x0001; i < 12U; i++; mask <<= 1, offset++)
+
+			mask = 0x0001;
+			for (unsigned int i = 0U; i < 12U; i++, mask <<= 1, offset++)
 				WRITE_BIT8(frame, offset, (frameInt[3U] & mask) != 0);
-			for (unsigned int i = 0U, mask = 0x0001; i < 11U; i++; mask <<= 1, offset++)
+
+			mask = 0x0001;
+			for (unsigned int i = 0U; i < 11U; i++, mask <<= 1, offset++)
 				WRITE_BIT8(frame, offset, (frameInt[4U] & mask) != 0);
-			for (unsigned int i = 0U, mask = 0x0001; i < 11U; i++; mask <<= 1, offset++)
+
+			mask = 0x0001;
+			for (unsigned int i = 0U; i < 11U; i++, mask <<= 1, offset++)
 				WRITE_BIT8(frame, offset, (frameInt[5U] & mask) != 0);
-			for (unsigned int i = 0U, mask = 0x0001; i < 11U; i++; mask <<= 1, offset++)
+
+			mask = 0x0001;
+			for (unsigned int i = 0U; i < 11U; i++, mask <<= 1, offset++)
 				WRITE_BIT8(frame, offset, (frameInt[6U] & mask) != 0);
-			for (unsigned int i = 0U, mask = 0x0001; i < 7U; i++; mask <<= 1, offset++)
+
+			mask = 0x0001;
+			for (unsigned int i = 0U; i < 7U; i++, mask <<= 1, offset++)
 				WRITE_BIT8(frame, offset, (frameInt[7U] & mask) != 0);
 
 			if (m_fec) {
@@ -242,7 +257,7 @@ int CWAV2AMBE::run()
 		controller.process();
 
 		controller.close();
-#if defined(USE_IMBE_VOCODER_LIB)
+#if !defined(HAVE_USB3000_P25)
 	}
 #endif
 

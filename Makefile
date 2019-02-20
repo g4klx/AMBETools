@@ -1,7 +1,7 @@
 export CXX     := g++
-export CFLAGS  := -O2 -Wall
+export CFLAGS  := -O2 -Wall -I../../imbe_vocoder/src/lib
 export LDFLAGS := 
-export LIBS    := -lsndfile
+export LIBS    := -lsndfile ../../imbe_vocoder/src/lib/imbe.a
 
 all:	AMBE2WAV/ambe2wav WAV2AMBE/wav2ambe
 
