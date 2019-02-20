@@ -177,6 +177,8 @@ int CAMBE2WAV::run()
 	if (m_mode == MODE_P25) {
 		unsigned int blockSize = m_fec ? 18U : 11U;
 
+		imbe_vocoder vocoder;
+
 		uint8_t imbe[18U];
 		while (reader.read(imbe, blockSize) == blockSize) {
 			if (m_fec) {
@@ -225,13 +227,11 @@ int CAMBE2WAV::run()
 
 			int16_t audioInt[AUDIO_BLOCK_SIZE];
 
-			imbe_vocoder vocoder;
 			vocoder.imbe_decode(frame, audioInt);
 
 			float audioFloat[AUDIO_BLOCK_SIZE];
-
 			for (unsigned int i = 0U; i < AUDIO_BLOCK_SIZE; i++)
-				audioFloat[i] = (float(audioInt[i]) - 128.0F) / 255.0F;
+				audioFloat[i] = float(audioInt[i]) / 32768.0F;
 
 			writer.write(audioFloat, AUDIO_BLOCK_SIZE);
 		}

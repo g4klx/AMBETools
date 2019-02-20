@@ -187,13 +187,13 @@ int CWAV2AMBE::run()
 
 #if !defined(HAVE_USB3000_P25)
 	if (m_mode == MODE_P25) {
+		imbe_vocoder vocoder;
+
 		float audioFloat[AUDIO_BLOCK_SIZE];
 		while (reader.read(audioFloat, AUDIO_BLOCK_SIZE) == AUDIO_BLOCK_SIZE) {
-			imbe_vocoder vocoder;
-
 			int16_t audioInt[AUDIO_BLOCK_SIZE];
 			for (unsigned int i = 0U; i < AUDIO_BLOCK_SIZE; i++)
-				audioInt[i] = int16_t((audioFloat[i] * 128) + 128);
+				audioInt[i] = int16_t(audioFloat[i] * 32768.0F + 0.5F);
 
 			int16_t frameInt[8U];
 			vocoder.imbe_encode(frameInt, audioInt);
