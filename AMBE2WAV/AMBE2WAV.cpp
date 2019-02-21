@@ -21,6 +21,7 @@
 #include "AMBEFileReader.h"
 #include "WAVFileWriter.h"
 #include "Version.h"
+#include "Utils.h"
 #if !defined(HAVE_USB3000_P25)
 #include "imbe_vocoder.h"
 #include "IMBEFEC.h"
@@ -175,12 +176,18 @@ int CAMBE2WAV::run()
 
 #if !defined(HAVE_USB3000_P25)
 	if (m_mode == MODE_P25) {
+		printf("Using open source IMBE vocoder by Pavel Yazev\n");
+
 		unsigned int blockSize = m_fec ? 18U : 11U;
 
 		imbe_vocoder vocoder;
+		unsigned int count = 0U;
 
 		uint8_t imbe[18U];
 		while (reader.read(imbe, blockSize) == blockSize) {
+			if (m_debug)
+				CUtils::dump("decodeIn", imbe, blockSize);
+
 			if (m_fec) {
 				uint8_t data[11U];
 
@@ -231,10 +238,17 @@ int CAMBE2WAV::run()
 
 			float audioFloat[AUDIO_BLOCK_SIZE];
 			for (unsigned int i = 0U; i < AUDIO_BLOCK_SIZE; i++)
-				audioFloat[i] = float(audioInt[i]) / 3276.8F;
+				audioFloat[i] = (float(audioInt[i]) / 3276.8F) * m_amplitude;
+
+			if (m_debug)
+				CUtils::dump("decodeOut", (unsigned char*)audioFloat, AUDIO_BLOCK_SIZE * sizeof(float));
 
 			writer.write(audioFloat, AUDIO_BLOCK_SIZE);
+
+			count++;
 		}
+
+		printf("Decoding: %u frames (%.2fs)\n", count, float(count) / 50.0F);
 	} else {
 #endif
 		CDV3000SerialController controller(m_port, m_speed, m_mode, m_fec, m_amplitude, m_reset, m_debug, &reader, &writer);
