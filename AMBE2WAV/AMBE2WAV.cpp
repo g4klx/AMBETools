@@ -238,7 +238,7 @@ int CAMBE2WAV::run()
 
 			float audioFloat[AUDIO_BLOCK_SIZE];
 			for (unsigned int i = 0U; i < AUDIO_BLOCK_SIZE; i++)
-				audioFloat[i] = (float(audioInt[i]) / 3276.8F) * m_amplitude;
+				audioFloat[i] = (float(audioInt[i]) / 4000.0F) * m_amplitude;
 
 			if (m_debug)
 				CUtils::dump("decodeOut", (unsigned char*)audioFloat, AUDIO_BLOCK_SIZE * sizeof(float));

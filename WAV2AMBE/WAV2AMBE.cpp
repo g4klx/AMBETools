@@ -197,7 +197,7 @@ int CWAV2AMBE::run()
 		while (reader.read(audioFloat, AUDIO_BLOCK_SIZE) == AUDIO_BLOCK_SIZE) {
 			int16_t audioInt[AUDIO_BLOCK_SIZE];
 			for (unsigned int i = 0U; i < AUDIO_BLOCK_SIZE; i++)
-				audioInt[i] = int16_t(audioFloat[i] * 1000.0F * m_amplitude + 0.5F);
+				audioInt[i] = int16_t(audioFloat[i] * 3000.0F * m_amplitude + 0.5F);
 
 			if (m_debug)
 				CUtils::dump("encodeIn", (unsigned char*)audioInt, AUDIO_BLOCK_SIZE * sizeof(int16_t));
