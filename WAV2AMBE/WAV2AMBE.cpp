@@ -200,7 +200,7 @@ int CWAV2AMBE::run()
 				audioInt[i] = int16_t(audioFloat[i] * 1000.0F * m_amplitude + 0.5F);
 
 			if (m_debug)
-				CUtils::dump("encodeIn", (unsigned char*)audioInt, AUDIO_BLOCK_SIZE * sizeof(int16));
+				CUtils::dump("encodeIn", (unsigned char*)audioInt, AUDIO_BLOCK_SIZE * sizeof(int16_t));
 
 			int16_t frameInt[8U];
 			vocoder.imbe_encode(frameInt, audioInt);
