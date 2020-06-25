@@ -33,5 +33,13 @@ where
 
 [-d] print debugging information
 
+
+## Building
+
+The repo https://github.com/g4klx/imbe_vocoder needs to be cloned and placed at the same level in the file structure as the folder for this repository
+
 On Linux these programs need access to the libsndfile library for compiling and running.
+
+
+
 

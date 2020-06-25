@@ -22,11 +22,13 @@
 #include <string>
 
 #include <cstdio>
-#include <sndfile.h>
+
 
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
 #include <mmsystem.h>
+#else
+#include <sndfile.h>
 #endif
 
 enum WAVFORMAT {
