@@ -21,5 +21,10 @@ clean:
 	$(MAKE) -C WAV2AMBE clean
 
 .PHONY: force
+install:
+	$(MAKE) -c AMBE2WAV install
+	$(MAKE) -c WAV2AMBE install
+
+.PHONY: force
 force:
 	@true

@@ -15,4 +15,7 @@ ambe2wav:	$(OBJECTS) ../Common/Common.a
 clean:
 		$(RM) ambe2wav *.o *.d *.bak *~
 
+install:
+		install -m 755 ambe2wav /usr/local/bin
+
 ../Common/Common.a:

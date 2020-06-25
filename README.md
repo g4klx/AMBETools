@@ -4,7 +4,7 @@ different AMBE formats.
 
 IMBE is either handled via a DVSI USB3000-P25 or via the open source IMBE
 vocoder. By default the open source vocoder is used, and the -p, -r and -s
-options are not used.
+options not being used.
 
 There are two programs, AMBE2WAV and WAV2AMBE and their purposes are obvious from
 their names. The usage of them is:

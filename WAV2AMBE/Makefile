@@ -12,6 +12,9 @@ wav2ambe:	$(OBJECTS) ../Common/Common.a
 		$(CXX) $(CFLAGS) -I../Common -c -o $@ $<
 		$(CXX) -MM $(CFLAGS) -I../Common $< > $*.d
 
+install:
+		install -m 755 wav2ambe /usr/local/bin
+
 clean:
 		$(RM) wav2ambe *.o *.d *.bak *~
 
