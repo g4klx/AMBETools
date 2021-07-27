@@ -1,5 +1,5 @@
 /*
-*   Copyright (C) 2017,2018,2019 by Jonathan Naylor G4KLX
+*   Copyright (C) 2017,2018,2019,2021 by Jonathan Naylor G4KLX
 *
 *   This program is free software; you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@
 #include "imbe_vocoder.h"
 #include "IMBEFEC.h"
 #endif
+#include "codec2/codec2.h"
 
 #include <cstring>
 
@@ -100,6 +101,12 @@ int main(int argc, char** argv)
 				mode = MODE_DMR;
 			else if (::strcmp(optarg, "p25") == 0)
 				mode = MODE_P25;
+			else if (::strcmp(optarg, "nxdn") == 0)
+				mode = MODE_DMR;
+			else if (::strcmp(optarg, "m17-3200") == 0)
+				mode = MODE_M17_3200;
+			else if (::strcmp(optarg, "m17-1600") == 0)
+				mode = MODE_M17_1600;
 			else
 				mode = MODE_UNKNOWN;
 			break;
@@ -118,13 +125,13 @@ int main(int argc, char** argv)
 		case '?':
 			break;
 		default:
-			fprintf(stderr, "Usage: WAV2AMBE [-v] [-a amplitude] [-g <signature>] [-m dstar|dmr|p25] [-f 0|1] [-p <port>] [-s <speed>] [-r] [-d] <input> <output>\n");
+			fprintf(stderr, "Usage: WAV2AMBE [-v] [-a amplitude] [-g <signature>] [-m dstar|dmr|p25|nxdn|m17-3200|m17-1600] [-f 0|1] [-p <port>] [-s <speed>] [-r] [-d] <input> <output>\n");
 			break;
 		}
 	}
 
 	if (optind > (argc - 2)) {
-		fprintf(stderr, "Usage: WAV2AMBE [-v] [-a amplitude] [-g <signature>] [-m dstar|dmr|p25] [-f 0|1] [-p <port>] [-s <speed>] [-r] [-d] <input> <output>\n");
+		fprintf(stderr, "Usage: WAV2AMBE [-v] [-a amplitude] [-g <signature>] [-m dstar|dmr|p25|nxdn|m17-3200|m17-1600] [-f 0|1] [-p <port>] [-s <speed>] [-r] [-d] <input> <output>\n");
 		return 1;
 	}
 
@@ -186,8 +193,36 @@ int CWAV2AMBE::run()
 		return 1;
 	}
 
+	if (m_mode == MODE_M17_3200 || m_mode == MODE_M17_1600) {
+		CCodec2 codec2(m_mode == MODE_M17_3200);
+
+		unsigned int count = 0U;
+
+		unsigned int blockSize = (m_mode == MODE_M17_3200) ? 8U : 4U;
+
+		float audioFloat[AUDIO_BLOCK_SIZE];
+		while (reader.read(audioFloat, AUDIO_BLOCK_SIZE) == AUDIO_BLOCK_SIZE) {
+			short audioInt[AUDIO_BLOCK_SIZE];
+			for (unsigned int i = 0U; i < AUDIO_BLOCK_SIZE; i++)
+				audioInt[i] = short(audioFloat[i] * 32767.0F * m_amplitude + 0.5F);
+
+			if (m_debug)
+				CUtils::dump("encodeIn", (unsigned char*)audioInt, AUDIO_BLOCK_SIZE * sizeof(short));
+
+			unsigned char frame[8U];
+			codec2.codec2_encode(frame, audioInt);
+
+			if (m_debug)
+				CUtils::dump("encodeOut", frame, blockSize);
+
+			writer.write(frame, blockSize);
+
+			count++;
+		}
+
+		printf("Encoding: %u frames (%.2fs)\n", count, float(count) / 50.0F);
 #if !defined(HAVE_USB3000_P25)
-	if (m_mode == MODE_P25) {
+	} else if (m_mode == MODE_P25) {
 		printf("Using open source IMBE vocoder by Pavel Yazev\n");
 
 		imbe_vocoder vocoder;
@@ -261,8 +296,8 @@ int CWAV2AMBE::run()
 		}
 
 		printf("Encoding: %u frames (%.2fs)\n", count, float(count) / 50.0F);
-	} else {
 #endif
+	} else {
 		CDV3000SerialController controller(m_port, m_speed, m_mode, m_fec, m_amplitude, m_reset, m_debug, &reader, &writer);
 		ret = controller.open();
 		if (!ret) {
@@ -274,9 +309,7 @@ int CWAV2AMBE::run()
 		controller.process();
 
 		controller.close();
-#if !defined(HAVE_USB3000_P25)
 	}
-#endif
 
 	writer.close();
 	reader.close();

@@ -1,5 +1,5 @@
 /*
-*   Copyright (C) 2019 by Jonathan Naylor G4KLX
+*   Copyright (C) 2019,2021 by Jonathan Naylor G4KLX
 *
 *   This program is free software; you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 #ifndef	Version_H
 #define Version_H
 
-const char* version = "20190224";
+const char* version = "20210727";
 
 #endif
 

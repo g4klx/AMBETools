@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2014,2015,2017,2019 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2014,2015,2017,2019,2021 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -31,6 +31,8 @@ enum AMBE_MODE {
 	MODE_DSTAR,
 	MODE_DMR,
 	MODE_P25,
+	MODE_M17_3200,
+	MODE_M17_1600,
 	MODE_UNKNOWN
 };
 

@@ -6,12 +6,15 @@ IMBE is either handled via a DVSI USB3000-P25 or via the open source IMBE
 vocoder. By default the open source vocoder is used, and the -p, -r and -s
 options not being used.
 
+Codec2 is handled by a built-in codec 2 vocoder and the two audio formats used for M17 are included. The
+vocoder is included within this project. The -f, -p, -r, and -s options are not used.
+
 There are two programs, AMBE2WAV and WAV2AMBE and their purposes are obvious from
 their names. The usage of them is:
 
-  ambe2wav [-v] [-a amplitude] [-g <signature>] [-m dstar|dmr|p25] [-f 0|1] [-p <port>] [-s <speed>] [-r] [-d] <input> <output>
+  ambe2wav [-v] [-a amplitude] [-g <signature>] [-m dstar|dmr|p25|nxdn|m17-3200|m17-1600] [-f 0|1] [-p <port>] [-s <speed>] [-r] [-d] <input> <output>
 
-  wav2ambe [-v] [-a amplitude] [-g <signature>] [-m dstar|dmr|p25] [-f 0|1] [-p <port>] [-s <speed>] [-r] [-d] <input> <output>
+  wav2ambe [-v] [-a amplitude] [-g <signature>] [-m dstar|dmr|p25|nxdn|m17-3200|m17-1600] [-f 0|1] [-p <port>] [-s <speed>] [-r] [-d] <input> <output>
 
 where
 
@@ -19,9 +22,9 @@ where
 
 [-a amplitude] is the gain applied to the WAV file data, the default is 1.0
 
-[-g signature] is an optional prefix at the beginning of the AMBE file
+[-g signature] is an optional prefix at the beginning of the AMBE/IMBE/Codec2 file
 
-[-m dstar|dmr|p25] is the mode for which the AMBE will be generated. Note that P25 requires special hardware.
+[-m dstar|dmr|p25|nxdn|m17-3200|m17-1600] is the mode for which the AMBE/IMBE/Codec2 will be generated. Note that P25 requires special hardware.
 
 [-f 0|1] is whether FEC should be applied.
 
@@ -39,7 +42,4 @@ where
 The repo https://github.com/g4klx/imbe_vocoder needs to be cloned and placed at the same level in the file structure as the folder for this repository
 
 On Linux these programs need access to the libsndfile library for compiling and running.
-
-
-
 
