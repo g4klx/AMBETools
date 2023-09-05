@@ -1,5 +1,5 @@
 /*
-*   Copyright (C) 2019,2021,2023 by Jonathan Naylor G4KLX
+*   Copyright (C) 2017,2019,2023 by Jonathan Naylor G4KLX
 *
 *   This program is free software; you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -16,10 +16,23 @@
 *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-#ifndef	Version_H
-#define Version_H
+#if !defined(AMBE2DVTOOL_H)
+#define	AMBE2DVTOOL_H
 
-const char* version = "20230905";
+#include <string>
+
+class CAMBE2DVTOOL
+{
+public:
+	CAMBE2DVTOOL(bool debug, const std::string& input, const std::string& output);
+	~CAMBE2DVTOOL();
+
+	int run();
+
+private:
+	bool        m_debug;
+	std::string m_input;
+	std::string m_output;
+};
 
 #endif
-

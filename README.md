@@ -9,12 +9,14 @@ options not being used.
 Codec2 is handled by a built-in codec 2 vocoder and the two audio formats used for M17 are included. The
 vocoder is included within this project. The -f, -p, -r, and -s options are not used.
 
-There are two programs, AMBE2WAV and WAV2AMBE and their purposes are obvious from
+There are three programs, AMBE2WAV, WAV2AMBE, and AMBE2DVTOOL and their purposes are obvious from
 their names. The usage of them is:
 
   ambe2wav [-v] [-a amplitude] [-g <signature>] [-m dstar|dmr|p25|nxdn|m17-3200|m17-1600] [-f 0|1] [-p <port>] [-s <speed>] [-r] [-d] <input> <output>
 
   wav2ambe [-v] [-a amplitude] [-g <signature>] [-m dstar|dmr|p25|nxdn|m17-3200|m17-1600] [-f 0|1] [-p <port>] [-s <speed>] [-r] [-d] <input> <output>
+
+  ambe2dvtool [-v] [-g <signature>] [-d] <input> <output>
 
 where
 

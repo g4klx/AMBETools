@@ -1,5 +1,6 @@
-OBJECTS = AMBEFileReader.o AMBEFileWriter.o DV3000SerialController.o IMBEFEC.o SerialController.o Utils.o WAVFileReader.o WAVFileWriter.o \
-	  codec2/codebooks.o codec2/codec2.o codec2/kiss_fft.o codec2/lpc.o codec2/nlp.o codec2/pack.o codec2/qbase.o codec2/quantise.o
+OBJECTS = AMBEFileReader.o AMBEFileWriter.o DV3000SerialController.o DVTOOLChecksum.o DVTOOLFileWriter.o IMBEFEC.o \
+	  SerialController.o Utils.o WAVFileReader.o WAVFileWriter.o codec2/codebooks.o codec2/codec2.o codec2/kiss_fft.o \
+	  codec2/lpc.o codec2/nlp.o codec2/pack.o codec2/qbase.o codec2/quantise.o
 
 .PHONY: all
 all:		Common.a

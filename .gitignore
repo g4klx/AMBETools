@@ -3,6 +3,7 @@ Release
 x64
 ambe2wav
 wav2ambe
+ambe2dvtool
 *.a
 *.o
 *.d
