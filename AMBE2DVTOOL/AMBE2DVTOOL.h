@@ -24,12 +24,13 @@
 class CAMBE2DVTOOL
 {
 public:
-	CAMBE2DVTOOL(bool debug, const std::string& input, const std::string& output);
+	CAMBE2DVTOOL(const std::string& signature, bool debug, const std::string& input, const std::string& output);
 	~CAMBE2DVTOOL();
 
 	int run();
 
 private:
+	std::string m_signature;
 	bool        m_debug;
 	std::string m_input;
 	std::string m_output;

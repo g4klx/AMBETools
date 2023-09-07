@@ -26,7 +26,7 @@
 class CAMBE2WAV
 {
 public:
-	CAMBE2WAV(const std::string& sugnature, AMBE_MODE mode, bool fec, const std::string& port, unsigned int speed, float amplitude, bool reset, bool debug, const std::string& input, const std::string& output);
+	CAMBE2WAV(const std::string& signature, AMBE_MODE mode, bool fec, const std::string& port, unsigned int speed, float amplitude, bool reset, bool debug, const std::string& input, const std::string& output);
 	~CAMBE2WAV();
 
 	int run();

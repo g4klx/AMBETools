@@ -41,7 +41,14 @@ bool CAMBEFileReader::open()
 
 	if (!m_signature.empty()) {
 		char buffer[25U];
-		::fread(buffer, sizeof(uint8_t), m_signature.size(), m_fp);
+		unsigned int n = ::fread(buffer, sizeof(uint8_t), m_signature.size(), m_fp);
+
+		if (n != m_signature.size()) {
+			::fprintf(stderr, "AMBEFileReader: the file signature is not present\n");
+			close();
+			return false;
+		}
+
 		if (m_signature != std::string(buffer, m_signature.size())) {
 			::fprintf(stderr, "AMBEFileReader: the file signature didn't match the one specified\n");
 			close();

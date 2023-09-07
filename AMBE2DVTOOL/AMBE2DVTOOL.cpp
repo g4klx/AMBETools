@@ -61,13 +61,17 @@ int getopt(int argc, char* const argv[], const char* optstring)
 
 int main(int argc, char** argv)
 {
+	std::string signature;
 	bool debug = false;
 
 	int c;
-	while ((c = ::getopt(argc, argv, "dv")) != -1) {
+	while ((c = ::getopt(argc, argv, "dg:v")) != -1) {
 		switch (c) {
 		case 'd':
 			debug = true;
+			break;
+		case 'g':
+			signature = std::string(optarg);
 			break;
 		case 'v':
 			printf("Version: %s\n", version);
@@ -75,17 +79,17 @@ int main(int argc, char** argv)
 		case '?':
 			break;
 		default:
-			fprintf(stderr, "Usage: AMBE2DVTOOL [-v] [-d] <input> <output>\n");
+			fprintf(stderr, "Usage: AMBE2DVTOOL [-v] [-g <signature>] [-d] <input> <output>\n");
 			break;
 		}
 	}
 
 	if (optind > (argc - 2)) {
-		fprintf(stderr, "Usage: AMBE2DVTOOL [-v] [-d] <input> <output>\n");
+		fprintf(stderr, "Usage: AMBE2DVTOOL [-v] [-g <signature>] [-d] <input> <output>\n");
 		return 1;
 	}
 
-	CAMBE2DVTOOL* ambe2dvtool = new CAMBE2DVTOOL(debug, std::string(argv[argc - 2]), std::string(argv[argc - 1]));
+	CAMBE2DVTOOL* ambe2dvtool = new CAMBE2DVTOOL(signature, debug, std::string(argv[argc - 2]), std::string(argv[argc - 1]));
 
 	int ret = ambe2dvtool->run();
 
@@ -94,7 +98,8 @@ int main(int argc, char** argv)
 	return ret;
 }
 
-CAMBE2DVTOOL::CAMBE2DVTOOL(bool debug, const std::string& input, const std::string& output) :
+CAMBE2DVTOOL::CAMBE2DVTOOL(const std::string& signature, bool debug, const std::string& input, const std::string& output) :
+m_signature(signature),
 m_debug(debug),
 m_input(input),
 m_output(output)
@@ -107,7 +112,7 @@ CAMBE2DVTOOL::~CAMBE2DVTOOL()
 
 int CAMBE2DVTOOL::run()
 {
-	CAMBEFileReader reader(m_input, "");
+	CAMBEFileReader reader(m_input, m_signature);
 	bool ret = reader.open();
 	if (!ret)
 		return 1;
