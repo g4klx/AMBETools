@@ -26,9 +26,9 @@ clean:
 
 .PHONY: force
 install:
-	$(MAKE) -c AMBE2WAV install
-	$(MAKE) -c WAV2AMBE install
-	$(MAKE) -c AMBE2DVTOOL install
+	$(MAKE) -C AMBE2WAV install
+	$(MAKE) -C WAV2AMBE install
+	$(MAKE) -C AMBE2DVTOOL install
 
 .PHONY: force
 force:
