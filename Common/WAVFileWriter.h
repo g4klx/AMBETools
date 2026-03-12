@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2002-2004,2006-2010,2017,2019 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2002-2004,2006-2010,2017,2019,2026 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 
 #include <string>
 
+#include <cstdint>
 #include <cstdio>
 
 #if defined(_WIN32) || defined(_WIN64)
