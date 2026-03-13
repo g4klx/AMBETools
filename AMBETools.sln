@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26730.15
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.37012.4 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WAV2AMBE", "WAV2AMBE\WAV2AMBE.vcxproj", "{4CDA3CDE-A974-4D11-B587-FF4D5C6C4914}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -14,6 +14,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AMBE2WAV", "AMBE2WAV\AMBE2W
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Common", "Common\Common.vcxproj", "{65F54051-CF86-4B42-A112-C37CE8248C91}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AMBE2DVTOOL", "AMBE2DVTOOL\AMBE2DVTOOL.vcxproj", "{27687579-AB9D-48DA-92F8-225ECC1EBC81}"
+	ProjectSection(ProjectDependencies) = postProject
+		{65F54051-CF86-4B42-A112-C37CE8248C91} = {65F54051-CF86-4B42-A112-C37CE8248C91}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,6 +52,14 @@ Global
 		{65F54051-CF86-4B42-A112-C37CE8248C91}.Release|x64.Build.0 = Release|x64
 		{65F54051-CF86-4B42-A112-C37CE8248C91}.Release|x86.ActiveCfg = Release|Win32
 		{65F54051-CF86-4B42-A112-C37CE8248C91}.Release|x86.Build.0 = Release|Win32
+		{27687579-AB9D-48DA-92F8-225ECC1EBC81}.Debug|x64.ActiveCfg = Debug|x64
+		{27687579-AB9D-48DA-92F8-225ECC1EBC81}.Debug|x64.Build.0 = Debug|x64
+		{27687579-AB9D-48DA-92F8-225ECC1EBC81}.Debug|x86.ActiveCfg = Debug|Win32
+		{27687579-AB9D-48DA-92F8-225ECC1EBC81}.Debug|x86.Build.0 = Debug|Win32
+		{27687579-AB9D-48DA-92F8-225ECC1EBC81}.Release|x64.ActiveCfg = Release|x64
+		{27687579-AB9D-48DA-92F8-225ECC1EBC81}.Release|x64.Build.0 = Release|x64
+		{27687579-AB9D-48DA-92F8-225ECC1EBC81}.Release|x86.ActiveCfg = Release|Win32
+		{27687579-AB9D-48DA-92F8-225ECC1EBC81}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -35,6 +35,15 @@
     <ClInclude Include="IMBEFEC.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DVTOOLChecksum.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DVTOOLFileWriter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WAVFileReader.cpp">
@@ -59,6 +68,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="IMBEFEC.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DVTOOLChecksum.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DVTOOLFileWriter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

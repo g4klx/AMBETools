@@ -12,7 +12,7 @@
  */
 
 #ifndef	DVTOOLChecksum_H
-#define	DTOOLChecksum_H
+#define	DVTOOLChecksum_H
 
 #include <cstdint>
 
